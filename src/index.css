@@ -1,0 +1,191 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter Tight", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* REMOVED: --font-acumin (Adobe font, never loaded by your @import -> fell back to Arial)
+     REMOVED: --font-helvetica (relied on the visitor's OS shipping Helvetica Neue)
+     If you actually want either, load it via @font-face or Adobe Fonts first. */
+
+  --color-primary-50:  #fcfcfc;
+  --color-primary-100: #f3f3f3;
+  --color-primary-200: #e2e2e2;
+  --color-primary-300: #cccccc;
+  --color-primary-400: #999999;
+  --color-primary-500: #666666;
+  --color-primary-550: #555555; /* stop-gap: your old Hero referenced primary-550/555,
+                                    which were never defined and rendered nothing.
+                                    Defined here so stray classes resolve — then migrate
+                                    them to 500/600 and delete these two. */
+  --color-primary-555: #525252;
+  --color-primary-600: #444444;
+  --color-primary-700: #262626;
+  --color-primary-800: #1c1c1c;
+  --color-primary-900: #121212;
+  --color-primary-950: #050505;
+
+  /* Premium clinical & aesthetics accent names. */
+  --color-accent:  #D1B280; /* Premium Champagne Gold — elite aesthetics, private orthodontics, and luxury branding */
+  --color-signal:  #2FA87A; /* Stable Surgical Mint / Sage Green — clinical, clinical trust, high-margin restorations */
+
+  /* DEPRECATED ALIASES — kept only so existing components don't break. */
+  --color-accent-blue:   #D1B280; 
+  --color-accent-teal:   #2FA87A; 
+  --color-accent-violet: #ffffff; 
+
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-10px); }
+}
+
+html, body {
+  background-color: var(--color-primary-950);
+  color: #f2f2f2;
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  /* NOTE: removed `overflow-x: hidden`. It was masking an element that overflows
+     the viewport and it can break position: sticky. Find the real culprit
+     (usually a full-bleed glow or a 100vw child) and contain it instead.
+     If you genuinely need it back, prefer it on a wrapper, not html/body. */
+}
+
+::selection {
+  background-color: rgba(209, 178, 128, 0.35);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-primary-950); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+/* Firefox has no ::-webkit-scrollbar. If cross-browser matters, add:
+   html { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; } */
+
+/* KEPT — these are likely used by your other components (BentoGrid, Projects, etc.).
+   Do not delete until you've grepped for them. */
+.glass-panel {
+  background: rgba(4, 4, 4, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.glass-panel-hover { transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.glass-panel-hover:hover {
+  background: rgba(12, 12, 12, 0.98);
+  border-color: rgba(255, 77, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.unseen-card-shine { position: relative; overflow: hidden; }
+.unseen-card-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent);
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+.unseen-card-shine:hover::after { left: 150%; }
+
+/* --- CUSTOM VANILLA MOTION STYLES --- */
+
+/* Hero headline reveal keys */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  transform: translateY(100%);
+  animation: slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scroll reveals (translateY 60px + fade) */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Image tile grayscale and smooth morph transitions */
+.motion-image-tile img {
+  filter: grayscale(100%);
+  transition: filter 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: filter, transform;
+}
+
+.motion-image-tile:hover img {
+  filter: grayscale(0%);
+}
+
+/* Animated sound indicator bars */
+@keyframes equalizer-one {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+@keyframes equalizer-two {
+  0%, 100% { height: 8px; }
+  50% { height: 12px; }
+}
+@keyframes equalizer-three {
+  0%, 100% { height: 6px; }
+  50% { height: 14px; }
+}
+@keyframes equalizer-four {
+  0%, 100% { height: 10px; }
+  50% { height: 16px; }
+}
+
+.animate-equalizer-one {
+  animation: equalizer-one 0.7s ease-in-out infinite;
+}
+.animate-equalizer-two {
+  animation: equalizer-two 0.9s ease-in-out infinite;
+}
+.animate-equalizer-three {
+  animation: equalizer-three 0.6s ease-in-out infinite;
+}
+.animate-equalizer-four {
+  animation: equalizer-four 0.8s ease-in-out infinite;
+}
+
+/* --- PREFERS-REDUCED-MOTION FALLBACK (Always respected) --- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-up {
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  
+  .motion-image-tile img {
+    filter: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
