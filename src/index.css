@@ -187,5 +187,57 @@ html, body {
     transform: none !important;
     transition: none !important;
   }
+
+  .liquid-light-beam {
+    animation: none !important;
+  }
+}
+
+/* --- FULL-WIDTH STRAIGHT LIQUID GLASS MENU BAR --- */
+.straight-glass-bar {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  ), rgba(10, 10, 12, 0.88);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.85),
+    0 2px 12px 0 rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+}
+
+.straight-glass-drawer {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  ), rgba(8, 8, 10, 0.98);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 24px 48px 0 rgba(0, 0, 0, 0.95);
+}
+
+@keyframes liquid-drift {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(100%);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+}
+
+.liquid-light-beam {
+  animation: liquid-drift 8s ease-in-out infinite;
 }
 

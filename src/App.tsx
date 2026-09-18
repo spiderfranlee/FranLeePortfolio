@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowUp, Linkedin, Github } from 'lucide-react';
+import { ArrowUp, Linkedin, Github, Menu, X } from 'lucide-react';
 
 import Hero from './components/Hero';
 import CredentialShowcase from './components/CredentialShowcase';
@@ -24,6 +24,7 @@ const NAV = [
 
 export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [botInfo, setBotInfo] = useState<{ username: string | null; hasToken: boolean }>({ username: 'PortfolioFranLee_bot', hasToken: false });
 
   useEffect(() => {
@@ -74,28 +75,96 @@ export default function App() {
         <div className="absolute top-[85%] right-[-180px] w-[500px] h-[500px] rounded-full bg-[#D1B280]/15 blur-[130px]" />
       </div>
 
-      {/* Header */}
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <a href="#top" className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-            <span className="text-sm font-black tracking-tight text-white">Fran Lee</span>
+      {/* Full-Width Straight-Line Menu Bar Across The Whole Page */}
+      <header className="fixed inset-x-0 top-0 z-50 w-full straight-glass-bar">
+        {/* Subtle Liquid Top Light Accent */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] w-full overflow-hidden">
+          <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/80 to-transparent liquid-light-beam" />
+        </div>
+
+        <div className="mx-auto flex h-16 sm:h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
+          {/* Brand Logo & Name */}
+          <a href="#top" className="group flex items-center gap-3 shrink-0">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full bg-accent opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 bg-accent" />
+            </span>
+            <span className="font-display text-lg sm:text-xl font-black tracking-tight text-white uppercase group-hover:text-accent transition-colors">
+              Fran Lee
+            </span>
           </a>
 
-          <nav className="flex items-center gap-6 font-mono text-[11px] uppercase tracking-widest">
+          {/* Desktop Navigation Links with Bigger Typography */}
+          <nav className="hidden md:flex items-center gap-2 lg:gap-3">
             {NAV.map((item) => (
-              <a key={item.href} href={item.href} className="text-zinc-400 transition-colors hover:text-white">
-                {item.label}
+              <a
+                key={item.href}
+                href={item.href}
+                className="relative group px-3.5 lg:px-4 py-2 font-display text-sm lg:text-[15px] font-bold uppercase tracking-wider text-zinc-300 hover:text-white transition-colors"
+              >
+                <span>{item.label}</span>
+                <span className="absolute bottom-0 inset-x-3.5 lg:inset-x-4 h-[2px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-150 origin-left" />
               </a>
             ))}
+          </nav>
+
+          {/* Right Action Area */}
+          <div className="flex items-center gap-3">
             <a
               href="#contact"
-              className="rounded-full bg-accent px-4 py-1.5 font-bold text-black transition-transform active:scale-95 hover:brightness-110 shadow-sm"
+              className="inline-flex items-center justify-center border border-accent bg-accent px-5 sm:px-6 py-2 sm:py-2.5 font-display text-xs sm:text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-transparent hover:text-accent active:scale-95 shadow-[0_0_20px_rgba(209,178,128,0.25)]"
             >
-              contact
+              Contact
             </a>
-          </nav>
+
+            {/* Sharp Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden flex items-center justify-center h-10 w-10 border border-white/25 bg-white/10 text-white hover:bg-white/20 hover:border-white/40 active:scale-95 transition-all"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Full-Width Straight-Line Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="w-full straight-glass-drawer border-t border-white/10 md:hidden overflow-hidden"
+            >
+              <div className="px-6 py-8 flex flex-col divide-y divide-white/10">
+                {NAV.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between py-4 font-display text-lg font-black uppercase tracking-wider text-zinc-100 hover:text-accent hover:pl-2 transition-all active:text-accent"
+                  >
+                    <span>{item.label}</span>
+                    <span className="font-mono text-sm text-accent">→</span>
+                  </a>
+                ))}
+
+                <div className="pt-6">
+                  <a
+                    href="#contact"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center justify-center border border-accent bg-accent py-3.5 font-display text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-transparent hover:text-accent"
+                  >
+                    Start A Project
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="flex-1">

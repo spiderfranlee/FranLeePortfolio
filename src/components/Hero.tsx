@@ -104,7 +104,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative mt-16 min-h-[calc(100vh-4rem)] border-b border-white/10 bg-transparent text-primary-300"
+      className="relative mt-16 sm:mt-20 min-h-[calc(100vh-4rem)] border-b border-white/10 bg-transparent text-primary-300"
     >
       <div
         aria-hidden
