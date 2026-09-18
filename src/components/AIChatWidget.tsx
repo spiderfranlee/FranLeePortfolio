@@ -24,7 +24,7 @@ export default function AIChatWidget() {
   const quickPrompts = [
     { label: 'What is the offer? 🏷️', text: 'What is your complete offer and package details?' },
     { label: 'How much does it cost? 💶', text: 'How much does the setup and monthly fee cost?' },
-    { label: 'Book a free call 📅', text: 'How do I book a free call or contact Fran?' },
+    { label: 'Contact Fran ✉️', text: 'How do I get in touch or contact Fran?' },
   ];
 
   // Intelligent local fallback generator for perfect resilience
@@ -40,7 +40,7 @@ export default function AIChatWidget() {
     }
     
     if (q.includes('book') || q.includes('call') || q.includes('schedule') || q.includes('contact') || q.includes('appointment') || q.includes('slot') || q.includes('consult')) {
-      return "Booking a free consultation is simple! Click the 'contact' button in the main header nav (or visit https://cal.com/fran-lee-mnjzic) to book an interactive slot directly into Fran Lee's calendar. We will review your clinic's workflows and design options! 📅";
+      return "Reaching out is simple! You can submit your project details directly in the 'Let's talk about your project' contact form on this page, or email Fran directly at franny.lee@gmail.com. Fran will review your requirements and reply within 24 hours! ✉️";
     }
 
     if (q.includes('telegram') || q.includes('bot') || q.includes('whatsapp') || q.includes('phone') || q.includes('mobile')) {

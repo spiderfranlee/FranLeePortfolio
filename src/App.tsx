@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Linkedin, Github } from 'lucide-react';
 
 import Hero from './components/Hero';
 import CredentialShowcase from './components/CredentialShowcase';
@@ -9,6 +9,7 @@ import BentoGrid from './components/BentoGrid';
 import Projects from './components/Projects';
 import TechnicalPortfolio from './components/TechnicalPortfolio';
 import Pricing from './components/Pricing';
+import ContactSection from './components/ContactSection';
 import FAQ from './components/FAQ';
 import CustomCursor from './components/CustomCursor';
 import AIChatWidget from './components/AIChatWidget';
@@ -88,10 +89,8 @@ export default function App() {
               </a>
             ))}
             <a
-              href="https://cal.com/fran-lee-mnjzic"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-full bg-accent px-4 py-1.5 font-bold text-black transition-transform active:scale-95 animate-pulse-subtle"
+              href="#contact"
+              className="rounded-full bg-accent px-4 py-1.5 font-bold text-black transition-transform active:scale-95 hover:brightness-110 shadow-sm"
             >
               contact
             </a>
@@ -107,6 +106,7 @@ export default function App() {
         <TechnicalPortfolio />
         <BentoGrid />
         <Pricing />
+        <ContactSection />
         <FAQ />
       </main>
 
@@ -116,10 +116,25 @@ export default function App() {
             &copy; {new Date().getFullYear()} Fran Lee · Built in Dublin
           </p>
           <div className="flex items-center gap-6 font-mono text-[10px] uppercase tracking-widest text-zinc-600">
-            <a href="https://github.com/spiderfranlee" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a
+              href="https://www.linkedin.com/in/franleeprofile/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Linkedin className="h-3 w-3" />
+              linkedin
+            </a>
+            <a
+              href="https://github.com/spiderfranlee"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+            >
+              <Github className="h-3 w-3" />
               github
             </a>
-            <a href="#top" className="hover:text-white">
+            <a href="#top" className="hover:text-white transition-colors">
               back to top
             </a>
           </div>

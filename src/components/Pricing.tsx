@@ -287,6 +287,12 @@ function PricingCard({ tier, index }: { tier: Tier; index: number; key?: React.K
 
         <a
           href="#contact"
+          onClick={() => {
+            setTimeout(() => {
+              const el = document.getElementById('form-name');
+              if (el) el.focus();
+            }, 300);
+          }}
           className={
             tier.highlighted
               ? 'group mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-xs font-bold text-black transition-transform active:scale-95 relative z-10'

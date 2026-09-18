@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowUpRight, Globe, CalendarCheck, MessageSquare, PhoneCall, Check } from 'lucide-react';
+import { ArrowUpRight, Globe, CalendarCheck, MessageSquare, PhoneCall, Check, Linkedin } from 'lucide-react';
 
 const playOfferHoverSound = () => {
   try {
@@ -56,8 +56,8 @@ const playOfferHoverSound = () => {
 const ACCENT = '#D1B280';
 
 const LINKS = {
-  book: 'https://cal.com/fran-lee-mnjzic',   // primary CTA
-  tel: 'tel:+353871234567',             // tap-to-call
+  contact: '#contact',
+  tel: 'tel:+353871234567',
   email: 'mailto:franny.lee@gmail.com',
 };
 
@@ -163,9 +163,13 @@ export default function Hero() {
             className="mt-10 flex flex-wrap items-center gap-4"
           >
             <a
-              href={LINKS.book}
-              target="_blank"
-              rel="noreferrer"
+              href="#contact"
+              onClick={() => {
+                setTimeout(() => {
+                  const el = document.getElementById('form-name');
+                  if (el) el.focus();
+                }, 300);
+              }}
               className="group inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-base font-bold text-black transition-transform active:scale-95 cursor-pointer shadow-[0_4px_25px_rgba(209,178,128,0.25)] hover:shadow-[0_8px_35px_rgba(209,178,128,0.4)]"
             >
               Let's Talk About Your Project
@@ -219,11 +223,23 @@ export default function Hero() {
             </div>
             
             <div className="text-center sm:text-left flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-1 sm:gap-2.5">
-                <h4 className="font-display text-lg font-black text-white uppercase tracking-tight">Fran Lee</h4>
-                <span className="self-center rounded-sm bg-accent/10 border border-accent/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold">
-                  Technical Corner Man
-                </span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center justify-center sm:justify-start gap-2.5">
+                  <h4 className="font-display text-lg font-black text-white uppercase tracking-tight">Fran Lee</h4>
+                  <span className="rounded-sm bg-accent/10 border border-accent/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold">
+                    Technical Corner Man
+                  </span>
+                </div>
+                <a
+                  href="https://www.linkedin.com/in/franleeprofile/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-mono text-zinc-300 hover:border-accent/50 hover:text-accent hover:bg-accent/10 transition-all self-center sm:self-auto"
+                >
+                  <Linkedin className="h-3 w-3 text-accent" />
+                  <span>LinkedIn</span>
+                  <ArrowUpRight className="h-3 w-3" />
+                </a>
               </div>
               <p className="mt-2 text-xs text-zinc-400 leading-relaxed font-sans font-medium">
                 Technical partner for clinic owners, coaches, and small business founders. BSc in Computer Science (UCD) with honors and AI distinction. Whether you’re on the clinic floor, coaching clients, or scaling your service, I handle the build, integrations, and digital heavy lifting so you can stay in your zone of genius.

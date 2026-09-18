@@ -12,7 +12,7 @@ const FAQS: FAQItem[] = [
   {
     id: 'setup',
     question: 'What is included in the €750 Setup package?',
-    answer: 'The setup package includes a custom-designed, SEO-friendly, mobile-optimized professional website tailored to your practice or small business. Additionally, we integrate an automated scheduling calendar (like Cal.com or similar), build your custom-trained 24/7 AI Chat Assistant, and configure the automated booking flows.'
+    answer: 'The setup package includes a custom-designed, SEO-friendly, mobile-optimized professional website tailored to your practice or small business. Additionally, we integrate an automated scheduling calendar, build your custom-trained 24/7 AI Chat Assistant, and configure the automated booking flows.'
   },
   {
     id: 'monthly',
@@ -120,14 +120,11 @@ export default function FAQ() {
           <p className="text-xs text-zinc-500 font-mono">
             Still have queries? Let our 24/7 Assistant know or{' '}
             <a 
-              href="https://cal.com/fran-lee-mnjzic" 
-              target="_blank" 
-              rel="noreferrer" 
+              href="#contact" 
               className="text-accent underline hover:text-white transition-colors"
             >
-              schedule a discovery call
-            </a>{' '}
-            with Fran.
+              send Fran a message directly
+            </a>.
           </p>
         </div>
       </div>

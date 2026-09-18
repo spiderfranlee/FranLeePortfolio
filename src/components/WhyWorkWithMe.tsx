@@ -185,7 +185,7 @@ export default function WhyWorkWithMe() {
         </div>
 
         {/* ============================================================ */}
-        {/* PART 2: How We Work (3-Step Scaffolding)                     */}
+        {/* PART 2: How I Work (3-Step Scaffolding)                      */}
         {/* ============================================================ */}
         <div className="rounded-3xl border border-white/10 bg-[#080808]/90 p-8 sm:p-12 lg:p-16 relative overflow-hidden">
           {/* Subtle architectural background crosshair */}
@@ -201,7 +201,7 @@ export default function WhyWorkWithMe() {
               </span>
             </div>
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-white leading-[1.05]">
-              How We Work.
+              How I Work.
             </h2>
             <p className="mt-4 text-base text-zinc-400 font-sans leading-relaxed">
               From our first conversation to full production launch, here is the exact 3-step roadmap to get your digital engine built, integrated, and humming.
@@ -283,12 +283,10 @@ export default function WhyWorkWithMe() {
             </div>
             
             <a
-              href="https://cal.com/fran-lee-mnjzic"
-              target="_blank"
-              rel="noreferrer"
+              href="#contact"
               className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-black transition-transform active:scale-95 hover:bg-accent/90 shrink-0 cursor-pointer shadow-[0_4px_20px_rgba(209,178,128,0.25)]"
             >
-              Start Step 01 (Free 15-Min Untangle)
+              Let's Talk About Your Project
               <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
