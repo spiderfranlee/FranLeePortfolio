@@ -13,6 +13,7 @@ import ContactSection from './components/ContactSection';
 import FAQ from './components/FAQ';
 import CustomCursor from './components/CustomCursor';
 import AIChatWidget from './components/AIChatWidget';
+import OrganicGrowthBackground from './components/OrganicGrowthBackground';
 
 const NAV = [
   { href: '#approach', label: 'approach' },
@@ -62,6 +63,9 @@ export default function App() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-[#0A0A0A] font-sans text-zinc-300 antialiased selection:bg-accent/40 selection:text-white overflow-x-hidden">
+      {/* Dynamic Botanical Growth: Seeds Sprouting Into Trees & Floating Spores */}
+      <OrganicGrowthBackground />
+
       {/* Background Ambient Clinician Glows (Surgical Mint/Sage & Warm Champagne Gold on the margins to brighten up the sides) */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         {/* Left Glows (Mint/Sage and Turquoise) */}
