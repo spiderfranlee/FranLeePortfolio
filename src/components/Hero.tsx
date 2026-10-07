@@ -261,7 +261,7 @@ export default function Hero() {
           className="lg:col-span-5 w-full max-w-full space-y-4"
         >
           {/* Fran Lee Showcase Card - Symmetrically matching the borders of The Engine Package box below */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent hover:border-accent/40 transition-all duration-300 w-full max-w-full shadow-xl">
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/98 via-[#0d0d0d]/96 to-[#090909]/98 backdrop-blur-2xl hover:border-accent/40 transition-all duration-300 w-full max-w-full shadow-2xl">
             {/* Header bar matching the Engine Package structure */}
             <div className="border-b border-white/10 px-5 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-2 bg-white/[0.02]">
               <div className="flex items-center gap-2">
@@ -353,7 +353,7 @@ export default function Hero() {
               boxShadow: isHovered && !isReduced ? '0 25px 50px rgba(209, 178, 128, 0.12)' : 'none',
               zIndex: isHovered ? 20 : 1,
             }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent hover:border-accent/40 cursor-pointer w-full max-w-full"
+            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-2xl hover:border-accent/40 cursor-pointer w-full max-w-full shadow-2xl transition-all duration-300"
           >
             {/* Spotlight overlay */}
             {isHovered && !isReduced && (
@@ -365,7 +365,7 @@ export default function Hero() {
                 }}
               />
             )}
-            <div className="border-b border-white/10 px-5 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-2">
+            <div className="border-b border-white/10 px-5 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-2 bg-white/[0.02]">
               <span className="font-mono text-[11px] uppercase tracking-widest text-primary-500 font-bold">
                 The Engine Package
               </span>
@@ -382,20 +382,20 @@ export default function Hero() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-white break-words">{title}</div>
-                    <div className="mt-0.5 text-sm leading-snug text-primary-400 break-words">{blurb}</div>
+                    <div className="mt-0.5 text-sm leading-snug text-zinc-300 break-words">{blurb}</div>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 sm:px-6 py-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 sm:px-6 py-5 bg-white/[0.01]">
               <div>
                 <span className="font-display text-3xl font-black text-white">{PRICE.setup}</span>
-                <span className="ml-2 text-sm text-primary-400">setup</span>
+                <span className="ml-2 text-sm text-zinc-400">setup</span>
               </div>
               <div className="text-right">
                 <span className="font-display text-2xl font-black text-white">{PRICE.monthly}</span>
-                <span className="ml-1 text-sm text-primary-400">/mo support</span>
+                <span className="ml-1 text-sm text-zinc-400">/mo support</span>
               </div>
             </div>
           </div>
