@@ -71,11 +71,11 @@ interface Step {
 const STEPS: Step[] = [
   {
     number: '01',
-    name: 'Untangle',
-    focus: 'The Bottleneck',
-    whatHappens: "We sit down 1-on-1, identify what’s stalling your launch, and map the cleanest path to get live.",
+    name: 'Plan',
+    focus: 'Challenges & Vision',
+    whatHappens: "We sit down 1-to-1 to understand your challenges and your vision so we can make a plan.",
     duration: 'Kickoff Call · 45 mins',
-    deliverable: 'Clear system architecture & launch roadmap'
+    deliverable: 'Clear system architecture & roadmap'
   },
   {
     number: '02',

@@ -204,15 +204,20 @@ export default function Hero() {
 
             <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-zinc-800 bg-[#121212] flex items-center justify-center">
               <img
-                src="/fran_headshot.jpg"
+                src="https://media.theresetclann.com/fran%20image.jpg"
                 alt="Fran Lee"
                 onError={(e) => {
-                  // If image is missing, dynamically display default typography fallback index letter
-                  e.currentTarget.style.display = 'none';
-                  const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
-                  if (fallback) fallback.style.display = 'flex';
+                  // Fallback to local copy or initials
+                  const imgEl = e.currentTarget;
+                  if (!imgEl.src.includes('fran_image.jpg')) {
+                    imgEl.src = '/fran_image.jpg';
+                  } else {
+                    imgEl.style.display = 'none';
+                    const fallback = imgEl.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
+                    if (fallback) fallback.style.display = 'flex';
+                  }
                 }}
-                className="h-full w-full object-cover object-center"
+                className="h-full w-full object-cover object-top"
               />
               <div 
                 className="avatar-fallback hidden absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-[#D1B280]/20 to-[#0A0A0A] text-accent font-display text-xl font-black"
@@ -248,13 +253,91 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* RIGHT: the offer. What you get + the price, in plain sight. */}
+        {/* RIGHT: Fran's photo card + The Engine Package box pushed down */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="lg:col-span-5 w-full max-w-full"
+          className="lg:col-span-5 w-full max-w-full space-y-4"
         >
+          {/* Fran Lee Showcase Card - Symmetrically matching the borders of The Engine Package box below */}
+          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent hover:border-accent/40 transition-all duration-300 w-full max-w-full shadow-xl">
+            {/* Header bar matching the Engine Package structure */}
+            <div className="border-b border-white/10 px-5 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-2 bg-white/[0.02]">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#2FA87A] animate-pulse" />
+                <span className="font-mono text-[11px] uppercase tracking-widest text-primary-500 font-bold">
+                  Technical Partner
+                </span>
+              </div>
+              <span className="font-mono text-[9px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 shrink-0">
+                1-on-1 Direct
+              </span>
+            </div>
+
+            {/* Faded Gradient Image Stage */}
+            <div className="relative h-64 sm:h-72 lg:h-[280px] w-full overflow-hidden bg-[#0a0a0a] flex items-center justify-center">
+              {/* Ambient blurred backdrop spreading across full width */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <img
+                  src="https://media.theresetclann.com/fran%20image.jpg"
+                  alt=""
+                  onError={(e) => {
+                    const imgEl = e.currentTarget;
+                    if (!imgEl.src.includes('fran_image.jpg')) {
+                      imgEl.src = '/fran_image.jpg';
+                    }
+                  }}
+                  className="h-full w-full object-cover filter blur-3xl opacity-20 scale-125"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+              </div>
+
+              {/* Centered portrait image - maintains smaller natural 4:5 aspect ratio so full face is 100% visible */}
+              <div className="relative h-full aspect-[4/5] max-w-[210px] sm:max-w-[230px] mx-auto z-10 flex items-center justify-center overflow-hidden">
+                <img
+                  src="https://media.theresetclann.com/fran%20image.jpg"
+                  alt="Fran Lee · Technical Corner Man"
+                  onError={(e) => {
+                    const imgEl = e.currentTarget;
+                    if (!imgEl.src.includes('fran_image.jpg')) {
+                      imgEl.src = '/fran_image.jpg';
+                    }
+                  }}
+                  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="eager"
+                />
+                {/* Subtle shirt-only bottom gradient */}
+                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/40 to-transparent pointer-events-none" />
+              </div>
+
+              {/* Faded gradient borders on left and right filling out to the card borders */}
+              <div className="absolute inset-y-0 left-0 w-24 sm:w-36 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pointer-events-none z-20" />
+              <div className="absolute inset-y-0 right-0 w-24 sm:w-36 bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pointer-events-none z-20" />
+              <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent pointer-events-none z-20" />
+              <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#0a0a0a]/60 to-transparent pointer-events-none z-20" />
+
+              {/* Floating detail badge over bottom gradient */}
+              <div className="absolute bottom-2.5 left-4 right-4 flex items-end justify-between gap-2 z-30 pointer-events-none">
+                <div className="flex flex-col gap-0.5">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-black/85 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-mono text-accent w-fit shadow-xl">
+                    <span className="font-bold text-white">Fran Lee</span>
+                    <span className="text-zinc-500">·</span>
+                    <span className="text-zinc-300">Dublin, IE</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-white/95 drop-shadow-md pl-1">
+                    Technical Corner Man
+                  </span>
+                </div>
+                <div className="shrink-0">
+                  <span className="rounded-md bg-black/85 backdrop-blur-md border border-white/15 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-accent font-bold shadow-xl">
+                    Build & Ops
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div
             ref={offerRef}
             onMouseMove={handleMouseMove}
