@@ -197,7 +197,7 @@ function PricingCard({ tier, index }: { tier: Tier; index: number; key?: React.K
             : 'none',
           zIndex: isHovered ? 20 : 1,
         }}
-        className={`glass-panel relative rounded-2xl border p-8 transition-all cursor-pointer select-none overflow-hidden h-full flex flex-col justify-between ${
+        className={`glass-panel relative rounded-2xl border p-6 sm:p-8 transition-all cursor-pointer select-none overflow-hidden h-full flex flex-col justify-between w-full max-w-full ${
           tier.highlighted
             ? 'border-accent lg:-translate-y-3 bg-gradient-to-b from-[#110e0a] to-[#040404]'
             : 'border-white/5 bg-[#0A0A0A] hover:border-white/15'

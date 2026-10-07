@@ -232,7 +232,7 @@ export default function Projects() {
         </div>
 
         {/* Callout Card */}
-        <div className="mt-14 flex flex-col items-start gap-6 rounded-3xl border border-accent/30 bg-gradient-to-r from-accent/10 via-black to-black p-8 sm:flex-row sm:items-center sm:justify-between shadow-2xl">
+        <div className="mt-14 flex flex-col items-start gap-6 rounded-2xl sm:rounded-3xl border border-accent/30 bg-gradient-to-r from-accent/10 via-black to-black p-6 sm:p-8 sm:flex-row sm:items-center sm:justify-between shadow-2xl w-full max-w-full overflow-hidden">
           <div>
             <span className="font-mono text-[10px] uppercase tracking-widest text-accent font-bold block mb-1">
               Ready to get unstuck?
@@ -246,7 +246,7 @@ export default function Projects() {
           </div>
           <a
             href="#contact"
-            className="group inline-flex shrink-0 items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-black transition-transform active:scale-95 shadow-[0_4px_20px_rgba(209,178,128,0.3)]"
+            className="group inline-flex w-full sm:w-auto justify-center shrink-0 items-center gap-2 rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-black transition-transform active:scale-95 shadow-[0_4px_20px_rgba(209,178,128,0.3)] text-center"
           >
             Let's Talk About Your Project
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

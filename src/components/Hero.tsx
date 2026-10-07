@@ -197,7 +197,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-12 flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-white/5 bg-[#080808] p-6 relative overflow-hidden group"
+            className="mt-12 flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-white/5 bg-[#080808] p-5 sm:p-6 relative overflow-hidden group w-full max-w-full"
           >
             {/* Ambient indicator */}
             <div className="absolute top-0 left-0 w-2 h-full bg-accent" />
@@ -222,11 +222,11 @@ export default function Hero() {
               </div>
             </div>
             
-            <div className="text-center sm:text-left flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center justify-center sm:justify-start gap-2.5">
+            <div className="text-center sm:text-left flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                   <h4 className="font-display text-lg font-black text-white uppercase tracking-tight">Fran Lee</h4>
-                  <span className="rounded-sm bg-accent/10 border border-accent/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold">
+                  <span className="rounded-sm bg-accent/10 border border-accent/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold shrink-0">
                     Technical Corner Man
                   </span>
                 </div>
@@ -234,14 +234,14 @@ export default function Hero() {
                   href="https://www.linkedin.com/in/franleeprofile/"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-mono text-zinc-300 hover:border-accent/50 hover:text-accent hover:bg-accent/10 transition-all self-center sm:self-auto"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-mono text-zinc-300 hover:border-accent/50 hover:text-accent hover:bg-accent/10 transition-all self-center sm:self-auto shrink-0"
                 >
                   <Linkedin className="h-3 w-3 text-accent" />
                   <span>LinkedIn</span>
                   <ArrowUpRight className="h-3 w-3" />
                 </a>
               </div>
-              <p className="mt-2 text-xs text-zinc-400 leading-relaxed font-sans font-medium">
+              <p className="mt-2 text-xs text-zinc-400 leading-relaxed font-sans font-medium break-words">
                 Technical partner for clinic owners, coaches, and small business founders. BSc in Computer Science (UCD) with honors and AI distinction. Whether you’re on the clinic floor, coaching clients, or scaling your service, I handle the build, integrations, and digital heavy lifting so you can stay in your zone of genius.
               </p>
             </div>
@@ -253,7 +253,7 @@ export default function Hero() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
-          className="lg:col-span-5"
+          className="lg:col-span-5 w-full max-w-full"
         >
           <div
             ref={offerRef}
@@ -270,7 +270,7 @@ export default function Hero() {
               boxShadow: isHovered && !isReduced ? '0 25px 50px rgba(209, 178, 128, 0.12)' : 'none',
               zIndex: isHovered ? 20 : 1,
             }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent hover:border-accent/40 cursor-pointer"
+            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-transparent hover:border-accent/40 cursor-pointer w-full max-w-full"
           >
             {/* Spotlight overlay */}
             {isHovered && !isReduced && (
@@ -282,30 +282,30 @@ export default function Hero() {
                 }}
               />
             )}
-            <div className="border-b border-white/10 px-6 py-4 flex justify-between items-center">
+            <div className="border-b border-white/10 px-5 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-2">
               <span className="font-mono text-[11px] uppercase tracking-widest text-primary-500 font-bold">
                 The Engine Package
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 shrink-0">
                 1-on-1 Build
               </span>
             </div>
 
             <ul className="flex flex-col">
               {INCLUDED.map(({ icon: Icon, title, blurb }) => (
-                <li key={title} className="flex items-start gap-4 border-b border-white/5 px-6 py-4">
+                <li key={title} className="flex items-start gap-3.5 sm:gap-4 border-b border-white/5 px-5 sm:px-6 py-4">
                   <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
                     <Icon className="h-4 w-4" />
                   </span>
-                  <div>
-                    <div className="font-semibold text-white">{title}</div>
-                    <div className="mt-0.5 text-sm leading-snug text-primary-400">{blurb}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold text-white break-words">{title}</div>
+                    <div className="mt-0.5 text-sm leading-snug text-primary-400 break-words">{blurb}</div>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <div className="flex items-baseline justify-between px-6 py-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 sm:px-6 py-5">
               <div>
                 <span className="font-display text-3xl font-black text-white">{PRICE.setup}</span>
                 <span className="ml-2 text-sm text-primary-400">setup</span>

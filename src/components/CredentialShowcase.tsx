@@ -212,9 +212,9 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
 
         {/* Grade and Timeline Metrics */}
         {cred.grade && cred.period && (
-          <div className="mt-4 self-start inline-flex items-center gap-4 border border-white/5 bg-black/40 py-1.5 px-3 font-mono text-[10px] text-zinc-400">
+          <div className="mt-4 self-start inline-flex flex-wrap items-center gap-2 sm:gap-4 border border-white/5 bg-black/40 py-1.5 px-3 font-mono text-[10px] text-zinc-400 max-w-full">
             <span className="text-white font-bold">{cred.grade}</span>
-            <span className="w-1 h-2 bg-white/10" />
+            <span className="hidden sm:inline-block w-1 h-2 bg-white/10" />
             <span>{cred.period}</span>
           </div>
         )}

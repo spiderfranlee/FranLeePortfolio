@@ -136,7 +136,7 @@ export default function WhyWorkWithMe() {
               return (
                 <div
                   key={p.id}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-black/60 p-8 transition-all duration-300 hover:border-accent/40 hover:bg-zinc-950/80 hover:-translate-y-1 shadow-lg"
+                  className="group relative flex flex-col justify-between rounded-2xl border border-white/10 bg-black/60 p-6 sm:p-8 transition-all duration-300 hover:border-accent/40 hover:bg-zinc-950/80 hover:-translate-y-1 shadow-lg overflow-hidden"
                 >
                   {/* Accent Top Border Bar */}
                   <div 
@@ -145,11 +145,11 @@ export default function WhyWorkWithMe() {
                   />
 
                   <div>
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
                       <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-400 font-bold">
                         {p.tag}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400 border border-white/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-zinc-400 border border-white/10 px-2 py-0.5 rounded shrink-0">
                         {p.highlight}
                       </span>
                     </div>
@@ -187,13 +187,13 @@ export default function WhyWorkWithMe() {
         {/* ============================================================ */}
         {/* PART 2: How I Work (3-Step Scaffolding)                      */}
         {/* ============================================================ */}
-        <div className="rounded-3xl border border-white/10 bg-[#080808]/90 p-8 sm:p-12 lg:p-16 relative overflow-hidden">
+        <div className="w-full max-w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-[#080808]/90 p-5 sm:p-10 lg:p-14 relative overflow-hidden">
           {/* Subtle architectural background crosshair */}
-          <div className="absolute top-6 right-8 text-xs font-mono text-white/10 uppercase tracking-widest select-none">
+          <div className="hidden sm:block absolute top-6 right-8 text-xs font-mono text-white/10 uppercase tracking-widest select-none">
             ENGINE_EXECUTION_PROTOCOL // v3.2
           </div>
 
-          <div className="max-w-3xl mb-14">
+          <div className="max-w-3xl mb-10 sm:mb-14">
             <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#2FA87A]/20 bg-[#2FA87A]/5 mb-4">
               <span className="h-1.5 w-1.5 rounded-full bg-[#2FA87A] animate-pulse" />
               <span className="text-[10px] font-mono font-bold tracking-[0.25em] text-[#2FA87A] uppercase">
@@ -203,37 +203,37 @@ export default function WhyWorkWithMe() {
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-white leading-[1.05]">
               How I Work.
             </h2>
-            <p className="mt-4 text-base text-zinc-400 font-sans leading-relaxed">
+            <p className="mt-4 text-sm sm:text-base text-zinc-400 font-sans leading-relaxed">
               From our first conversation to full production launch, here is the exact 3-step roadmap to get your digital engine built, integrated, and humming.
             </p>
           </div>
 
           {/* Steps Timeline Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-8 relative w-full">
             {STEPS.map((s, index) => {
               const isSelected = activeStep === index;
               return (
                 <div
                   key={s.number}
                   onClick={() => setActiveStep(index)}
-                  className={`cursor-pointer rounded-2xl border p-8 transition-all duration-300 flex flex-col justify-between relative ${
+                  className={`cursor-pointer rounded-2xl border p-5 sm:p-7 lg:p-8 transition-all duration-300 flex flex-col justify-between relative w-full max-w-full overflow-hidden ${
                     isSelected 
                       ? 'border-accent bg-gradient-to-b from-white/[0.07] to-[#0d0d0d] shadow-[0_10px_30px_rgba(209,178,128,0.12)]' 
                       : 'border-white/10 bg-black/40 hover:border-white/20 hover:bg-white/[0.02]'
                   }`}
                 >
-                  <div>
+                  <div className="w-full">
                     {/* Header */}
-                    <div className="flex items-center justify-between pb-5 border-b border-white/10 mb-6">
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-3xl font-black text-accent">
+                    <div className="flex flex-wrap items-center justify-between gap-2.5 pb-4 sm:pb-5 border-b border-white/10 mb-5 sm:mb-6">
+                      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                        <span className="font-mono text-2xl sm:text-3xl font-black text-accent shrink-0">
                           {s.number}.
                         </span>
-                        <span className="font-display text-2xl font-black text-white uppercase tracking-tight">
+                        <span className="font-display text-xl sm:text-2xl font-black text-white uppercase tracking-tight break-words">
                           {s.name}
                         </span>
                       </div>
-                      <span className="rounded bg-white/5 border border-white/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold">
+                      <span className="rounded bg-white/5 border border-white/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold shrink-0">
                         Step {s.number}
                       </span>
                     </div>
@@ -243,7 +243,7 @@ export default function WhyWorkWithMe() {
                       <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
                         Primary Focus:
                       </span>
-                      <span className="inline-block font-mono text-xs font-bold text-accent uppercase tracking-wider bg-accent/10 border border-accent/25 px-2.5 py-1 rounded">
+                      <span className="inline-block max-w-full font-mono text-xs font-bold text-accent uppercase tracking-wider bg-accent/10 border border-accent/25 px-2.5 py-1 rounded break-words">
                         {s.focus}
                       </span>
                     </div>
@@ -253,21 +253,21 @@ export default function WhyWorkWithMe() {
                       <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-500 block mb-1">
                         What Happens:
                       </span>
-                      <p className="text-sm md:text-base leading-relaxed text-zinc-300 font-medium">
+                      <p className="text-sm md:text-base leading-relaxed text-zinc-300 font-medium break-words">
                         "{s.whatHappens}"
                       </p>
                     </div>
                   </div>
 
                   {/* Footnotes / Deliverables */}
-                  <div className="pt-6 border-t border-white/5 space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                      <span className="text-zinc-500">Timeline</span>
-                      <span className="font-semibold text-zinc-300">{s.duration}</span>
+                  <div className="pt-5 border-t border-white/5 space-y-2.5 w-full">
+                    <div className="flex items-center justify-between gap-2 text-[11px] font-mono text-zinc-400">
+                      <span className="text-zinc-500 shrink-0">Timeline</span>
+                      <span className="font-semibold text-zinc-300 text-right">{s.duration}</span>
                     </div>
-                    <div className="flex items-start justify-between gap-2 text-[11px] font-mono text-zinc-400">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 sm:gap-2 text-[11px] font-mono text-zinc-400">
                       <span className="text-zinc-500 shrink-0">Deliverable</span>
-                      <span className="font-semibold text-right text-accent/90">{s.deliverable}</span>
+                      <span className="font-semibold text-left sm:text-right text-accent/90 break-words">{s.deliverable}</span>
                     </div>
                   </div>
                 </div>
@@ -276,7 +276,7 @@ export default function WhyWorkWithMe() {
           </div>
 
           {/* Bottom Action bar */}
-          <div className="mt-12 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="mt-10 sm:mt-12 pt-6 sm:pt-8 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
             <div className="flex items-center gap-3 text-sm text-zinc-400">
               <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />
               <span>Direct personal collaboration. No outsourcing. You talk straight to the engineer building it.</span>
@@ -284,7 +284,7 @@ export default function WhyWorkWithMe() {
             
             <a
               href="#contact"
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-black transition-transform active:scale-95 hover:bg-accent/90 shrink-0 cursor-pointer shadow-[0_4px_20px_rgba(209,178,128,0.25)]"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-3.5 text-sm font-bold text-black transition-transform active:scale-95 hover:bg-accent/90 shrink-0 cursor-pointer shadow-[0_4px_20px_rgba(209,178,128,0.25)] text-center w-full sm:w-auto"
             >
               Let's Talk About Your Project
               <ArrowUpRight className="w-4 h-4" />
