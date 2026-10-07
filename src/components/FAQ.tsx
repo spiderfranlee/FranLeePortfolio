@@ -30,9 +30,9 @@ const FAQS: FAQItem[] = [
     answer: 'Fran conducts a thorough clinical/business intake interview with you. We collect your booking rules, treatments list, price lists, and clinic policies. All this knowledge is converted into strict system instructions for your chatbot, ensuring it never invents details and always represents your brand accurately.'
   },
   {
-    id: 'telegram',
-    question: 'How does the Telegram bot work for business owners?',
-    answer: 'For businesses wanting real-time notification or response capability, we offer active clinical setup assistant chatbots connected directly via Telegram. This lets you receive client booking alerts instantly on your phone, step in to talk to patients, or let the AI handle questions at any hour.'
+    id: 'notifications',
+    question: 'How do I receive patient bookings and new client alerts?',
+    answer: 'Whenever a patient books an appointment or an inquiry requires your attention, instant notifications are automatically routed to your email or designated phone number with complete intake details, allowing you to follow up immediately without manual admin work.'
   },
   {
     id: 'contract',

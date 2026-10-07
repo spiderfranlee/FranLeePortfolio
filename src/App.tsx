@@ -26,14 +26,6 @@ const NAV = [
 export default function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [botInfo, setBotInfo] = useState<{ username: string | null; hasToken: boolean }>({ username: 'PortfolioFranLee_bot', hasToken: false });
-
-  useEffect(() => {
-    fetch('/api/bot-info')
-      .then((res) => res.json())
-      .then((data) => setBotInfo(data))
-      .catch((err) => console.error('Failed to load bot info', err));
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 400);

@@ -43,8 +43,8 @@ export default function AIChatWidget() {
       return "Reaching out is simple! You can submit your project details directly in the 'Let's talk about your project' contact form on this page, or email Fran directly at franny.lee@gmail.com. Fran will review your requirements and reply within 24 hours! ✉️";
     }
 
-    if (q.includes('telegram') || q.includes('bot') || q.includes('whatsapp') || q.includes('phone') || q.includes('mobile')) {
-      return "Yes! In addition to this website's chat bubble, we build standalone Telegram bots and WhatsApp automation paths. This lets you receive instantly routed appointment alerts on your phone, step in to talk to patients manually, or let your custom AI engine handle inquiries at 3 AM.";
+    if (q.includes('bot') || q.includes('whatsapp') || q.includes('phone') || q.includes('mobile')) {
+      return "In addition to this website's intelligent assistant, we set up automated booking alerts and notification workflows directly to your phone and email. This lets you receive instantly routed appointment alerts, step in to talk to patients manually, or let your custom AI engine handle inquiries at 3 AM.";
     }
 
     if (q.includes('ireland') || q.includes('dublin') || q.includes('south dublin') || q.includes('local') || q.includes('who is')) {
