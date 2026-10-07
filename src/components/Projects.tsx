@@ -46,6 +46,8 @@ function WarpImageTile({ src, alt, children }: { src: string; alt: string; child
         ref={imgRef}
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         referrerPolicy="no-referrer"
         className="h-full w-full object-cover object-center transition-transform duration-300"
       />

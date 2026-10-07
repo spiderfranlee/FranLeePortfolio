@@ -1,6 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 
-interface Spark {
+interface CornerWorkerProps {
+  cardRef?: React.RefObject<HTMLDivElement | null>;
+  position?: 'top-right' | 'top-left' | 'on-word';
+  boxLabel?: string;
+  onImpact?: () => void;
+}
+
+interface ClickSpark {
   id: number;
   x: number;
   y: number;
@@ -13,133 +20,53 @@ interface Spark {
   maxLife: number;
 }
 
-interface CornerWorkerProps {
-  cardRef?: React.RefObject<HTMLDivElement | null>;
-  position?: 'top-right' | 'top-left' | 'on-word';
-  boxLabel?: string;
-  onImpact?: () => void;
-}
-
-export default function CornerWorker({
+const CornerWorker = memo(function CornerWorker({
   cardRef,
   position = 'on-word',
   boxLabel = 'How I Work',
   onImpact,
 }: CornerWorkerProps) {
-  const [tapPhase, setTapPhase] = useState(0); // 0..1 in tap cycle
-  const [sparks, setSparks] = useState<Spark[]>([]);
-  const [impactFlash, setImpactFlash] = useState(false);
   const [speech, setSpeech] = useState<string | null>(null);
-
-  const lastTimeRef = useRef(performance.now());
-  const tapTimerRef = useRef(0);
-  const tapCountRef = useRef(0);
+  const [clickSparks, setClickSparks] = useState<ClickSpark[]>([]);
   const sparkIdRef = useRef(0);
-  const animFrameRef = useRef<number | null>(null);
+  const clickAnimFrameRef = useRef<number | null>(null);
 
-  // Pickaxe tip hits the box edge / text top at this local coordinate
-  // When pickaxe strikes down, the sharp tip contacts at (contactX, 0)
   const isFacingLeft = position === 'top-right' || position === 'on-word';
-  const CONTACT_X = isFacingLeft ? -16 : 16;
-  const CONTACT_Y = 0; // Exactly on the top border edge or text top line
 
-  const triggerEdgeSparks = () => {
-    // Little crisp sparks spraying off where the pickaxe hits
-    const sparkCount = 8 + Math.floor(Math.random() * 6);
-    const colors = ['#FFFFFF', '#FFF3D6', '#D1B280', '#FCD34D', '#2FA87A'];
-    const newSparks: Spark[] = [];
-
-    // Fan angle spraying upward and outward from the contact point
-    const baseAngle = isFacingLeft ? -Math.PI * 0.65 : -Math.PI * 0.35;
-
-    for (let i = 0; i < sparkCount; i++) {
-      const angle = baseAngle + (Math.random() - 0.5) * 1.4;
-      const speed = 45 + Math.random() * 115;
-      newSparks.push({
-        id: sparkIdRef.current++,
-        x: CONTACT_X + (Math.random() - 0.5) * 2,
-        y: CONTACT_Y, // Originates right on the contact point
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 1.2 + Math.random() * 1.8,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: 1,
-        life: 0,
-        maxLife: 0.34 + Math.random() * 0.28,
-      });
-    }
-
-    setSparks((prev) => [...prev.slice(-28), ...newSparks]);
-
-    // Local impact flash
-    setImpactFlash(true);
-    setTimeout(() => setImpactFlash(false), 90);
-
-    // Trigger parent visual impact
-    if (onImpact) {
-      onImpact();
-    }
-
-    // Subtle edge pulse if cardRef is attached
-    if (cardRef?.current) {
-      const el = cardRef.current;
-      el.style.borderColor = 'rgba(209, 178, 128, 0.7)';
-      setTimeout(() => {
-        el.style.borderColor = '';
-      }, 110);
-    }
-  };
-
+  // Synchronize the parent's onImpact pulse with the rhythmic 0.85s strike cycle
+  // (Impact lands at ~68% into the cycle = 580ms from cycle start)
   useEffect(() => {
-    const update = (now: number) => {
-      const dt = Math.min((now - lastTimeRef.current) / 1000, 0.1);
-      lastTimeRef.current = now;
+    if (!onImpact) return;
 
-      // Update Sparks
-      setSparks((prev) =>
-        prev
-          .map((s) => ({
-            ...s,
-            x: s.x + s.vx * dt,
-            y: s.y + s.vy * dt,
-            vy: s.vy + 280 * dt, // gravity pulling sparks downward off edge
-            vx: s.vx * 0.98,
-            life: s.life + dt,
-            alpha: Math.max(0, 1 - s.life / s.maxLife),
-          }))
-          .filter((s) => s.life < s.maxLife)
-      );
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const initialDelay = setTimeout(() => {
+      onImpact();
 
-      // Tapping cadence: satisfying rhythmic tap (~0.58s per tap)
-      const TAP_CYCLE = 0.58;
-      tapTimerRef.current += dt;
-      const phase = (tapTimerRef.current % TAP_CYCLE) / TAP_CYCLE;
-      setTapPhase(phase);
-
-      // Trigger spark when pickaxe tip makes contact at ~0.70 of cycle
-      const currentTap = Math.floor(tapTimerRef.current / TAP_CYCLE);
-      if (currentTap > tapCountRef.current) {
-        tapCountRef.current = currentTap;
-        triggerEdgeSparks();
-
-        // Occasional double-tap rhythm variation
-        if (currentTap % 7 === 0) {
-          setTimeout(() => {
-            triggerEdgeSparks();
-          }, 140);
-        }
+      if (cardRef?.current) {
+        cardRef.current.style.borderColor = 'rgba(209, 178, 128, 0.7)';
+        setTimeout(() => {
+          if (cardRef?.current) cardRef.current.style.borderColor = '';
+        }, 120);
       }
 
-      animFrameRef.current = requestAnimationFrame(update);
-    };
+      intervalId = setInterval(() => {
+        onImpact();
+        if (cardRef?.current) {
+          cardRef.current.style.borderColor = 'rgba(209, 178, 128, 0.7)';
+          setTimeout(() => {
+            if (cardRef?.current) cardRef.current.style.borderColor = '';
+          }, 120);
+        }
+      }, 850);
+    }, 580);
 
-    animFrameRef.current = requestAnimationFrame(update);
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      clearTimeout(initialDelay);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [position, cardRef]);
+  }, [onImpact, cardRef]);
 
-  // Click interaction: fast triple-tap with cheer
+  // Click interaction: fast burst of sparks and witty artisan quote
   const handleWorkerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const quotes = position === 'on-word'
@@ -157,42 +84,72 @@ export default function CornerWorker({
           'Crafting 60fps polish...',
         ];
     setSpeech(quotes[Math.floor(Math.random() * quotes.length)]);
-    triggerEdgeSparks();
-    setTimeout(() => triggerEdgeSparks(), 120);
-    setTimeout(() => triggerEdgeSparks(), 240);
-    setTimeout(() => setSpeech(null), 2500);
+
+    // Trigger parent impact glow
+    if (onImpact) onImpact();
+
+    // Spawn interactive shower of sparks
+    const colors = ['#FFFFFF', '#FFF3D6', '#D1B280', '#FCD34D', '#2FA87A'];
+    const newSparks: ClickSpark[] = [];
+    for (let i = 0; i < 14; i++) {
+      const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 1.6;
+      const speed = 60 + Math.random() * 120;
+      newSparks.push({
+        id: sparkIdRef.current++,
+        x: 18,
+        y: 100,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 1.5 + Math.random() * 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1,
+        life: 0,
+        maxLife: 0.45 + Math.random() * 0.25,
+      });
+    }
+
+    setClickSparks((prev) => [...prev.slice(-20), ...newSparks]);
+    setTimeout(() => setSpeech(null), 2400);
   };
 
-  // Tapping kinematics:
-  // 0.00 -> 0.60: Raise pickaxe up smoothly (windup)
-  // 0.60 -> 0.72: Fast snappy tap down onto the edge/word!
-  // 0.72 -> 0.82: Micro bounce on impact
-  // 0.82 -> 1.00: Return to ready
-  let armRotation = -20;
-  let torsoLean = 0;
+  // Animate dynamic click sparks if any are active
+  useEffect(() => {
+    if (clickSparks.length === 0) return;
 
-  if (tapPhase < 0.60) {
-    const t = tapPhase / 0.60;
-    armRotation = -20 - t * 40; // raises to -60 deg
-    torsoLean = -t * 4;
-  } else if (tapPhase < 0.74) {
-    const t = (tapPhase - 0.60) / 0.14;
-    armRotation = -60 + t * 86; // strikes down to +26 deg (exact contact)
-    torsoLean = -4 + t * 10;
-  } else if (tapPhase < 0.84) {
-    const t = (tapPhase - 0.74) / 0.10;
-    armRotation = 26 - Math.sin(t * Math.PI) * 14; // recoil bounce
-    torsoLean = 6 - t * 3;
-  } else {
-    const t = (tapPhase - 0.84) / 0.16;
-    armRotation = 12 - t * 32;
-    torsoLean = 3 - t * 3;
-  }
+    let lastTime = performance.now();
+    const updateClickSparks = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      setClickSparks((prev) => {
+        const next = prev
+          .map((s) => ({
+            ...s,
+            x: s.x + s.vx * dt,
+            y: s.y + s.vy * dt,
+            vy: s.vy + 360 * dt, // gravity pull
+            life: s.life + dt,
+            alpha: Math.max(0, 1 - s.life / s.maxLife),
+          }))
+          .filter((s) => s.life < s.maxLife);
+
+        if (next.length > 0) {
+          clickAnimFrameRef.current = requestAnimationFrame(updateClickSparks);
+        }
+        return next;
+      });
+    };
+
+    clickAnimFrameRef.current = requestAnimationFrame(updateClickSparks);
+    return () => {
+      if (clickAnimFrameRef.current) cancelAnimationFrame(clickAnimFrameRef.current);
+    };
+  }, [clickSparks.length]);
 
   const containerStyle: React.CSSProperties = position === 'on-word'
     ? {
         position: 'absolute',
-        bottom: 'calc(100% - 2px)',
+        bottom: 'calc(100% - 6px)',
         right: '-4px',
         zIndex: 35,
       }
@@ -212,58 +169,181 @@ export default function CornerWorker({
       className="cursor-pointer select-none group pointer-events-auto"
       title={`${boxLabel} Craftsman at work! Click to interact.`}
     >
+      {/* Dynamic Keyframe Styles: Hardware Accelerated, 100% Jam-Proof */}
+      <style>{`
+        .miner-arm-swing {
+          animation: pickaxeSwing 0.85s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+          transform-origin: 58px 40px;
+          will-change: transform;
+        }
+        .miner-torso-lean {
+          animation: torsoSwing 0.85s cubic-bezier(0.35, 0, 0.25, 1) infinite;
+          transform-origin: 55px 72px;
+          will-change: transform;
+        }
+        .miner-contact-burst {
+          animation: contactBurst 0.85s infinite;
+          transform-origin: 18px 100px;
+        }
+        .miner-spark-1 { animation: sparkFly1 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-2 { animation: sparkFly2 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-3 { animation: sparkFly3 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-4 { animation: sparkFly4 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-5 { animation: sparkFly5 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-6 { animation: sparkFly6 0.85s infinite; transform-origin: 18px 100px; }
+        .miner-spark-7 { animation: sparkFly7 0.85s infinite; transform-origin: 18px 100px; }
+
+        @keyframes pickaxeSwing {
+          0% {
+            /* Ready rest pose */
+            transform: rotate(18deg);
+          }
+          35% {
+            /* Smooth windup, raising pickaxe high */
+            transform: rotate(44deg);
+          }
+          50% {
+            /* Peak of windup, drawn back ready to strike */
+            transform: rotate(50deg);
+          }
+          68% {
+            /* POWERFUL SNAP DOWN: Pickaxe tip strikes exactly on the word line at Y=100 */
+            transform: rotate(0deg);
+          }
+          74% {
+            /* Sharp recoil bounce off the word */
+            transform: rotate(7deg);
+          }
+          85% {
+            /* Recovering smoothly */
+            transform: rotate(14deg);
+          }
+          100% {
+            /* Back to ready pose */
+            transform: rotate(18deg);
+          }
+        }
+
+        @keyframes torsoSwing {
+          0% {
+            transform: rotate(0deg);
+          }
+          35% {
+            /* Lean back slightly as pickaxe raises */
+            transform: rotate(-3deg);
+          }
+          50% {
+            transform: rotate(-5deg);
+          }
+          68% {
+            /* Thrust body forward into the impact */
+            transform: rotate(7deg);
+          }
+          74% {
+            transform: rotate(3deg);
+          }
+          85% {
+            transform: rotate(1deg);
+          }
+          100% {
+            transform: rotate(0deg);
+          }
+        }
+
+        @keyframes contactBurst {
+          0%, 66% {
+            opacity: 0;
+            transform: scale(0.2);
+          }
+          68% {
+            opacity: 1;
+            transform: scale(1.4);
+          }
+          75% {
+            opacity: 0.6;
+            transform: scale(1.1);
+          }
+          82%, 100% {
+            opacity: 0;
+            transform: scale(0.3);
+          }
+        }
+
+        @keyframes sparkFly1 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(1); }
+          78% { opacity: 0.9; transform: translate(-9px, -15px) scale(0.9); }
+          88% { opacity: 0; transform: translate(-15px, -22px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly2 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(1.1); }
+          78% { opacity: 1; transform: translate(-3px, -20px) scale(1.2); }
+          88% { opacity: 0; transform: translate(-5px, -30px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly3 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(1); }
+          78% { opacity: 0.9; transform: translate(6px, -16px) scale(0.9); }
+          88% { opacity: 0; transform: translate(11px, -24px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly4 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(0.9); }
+          78% { opacity: 0.85; transform: translate(-13px, -9px) scale(0.85); }
+          88% { opacity: 0; transform: translate(-20px, -12px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly5 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(1.2); }
+          78% { opacity: 1; transform: translate(2px, -23px) scale(1.3); }
+          88% { opacity: 0; transform: translate(3px, -33px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly6 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(0.9); }
+          78% { opacity: 0.85; transform: translate(10px, -10px) scale(0.8); }
+          88% { opacity: 0; transform: translate(16px, -14px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+
+        @keyframes sparkFly7 {
+          0%, 67% { opacity: 0; transform: translate(0, 0) scale(0); }
+          68% { opacity: 1; transform: translate(0, 0) scale(1); }
+          78% { opacity: 0.9; transform: translate(-7px, -22px) scale(1); }
+          88% { opacity: 0; transform: translate(-10px, -31px) scale(0); }
+          100% { opacity: 0; transform: translate(0, 0) scale(0); }
+        }
+      `}</style>
+
       {/* Speech / Thought Bubble */}
       {speech && (
-        <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-accent/70 bg-black/95 px-2 py-0.5 font-mono text-[9px] font-bold text-accent shadow-lg backdrop-blur-md animate-bounce pointer-events-none">
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-accent/70 bg-black/95 px-2 py-0.5 font-mono text-[9px] font-bold text-accent shadow-lg backdrop-blur-md animate-bounce pointer-events-none z-50">
           {speech}
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rotate-45 border-b border-r border-accent/70 bg-black" />
         </div>
       )}
 
-      {/* Spark Particles Showering Directly Off the Box Edge */}
-      <div className="pointer-events-none absolute inset-0 overflow-visible">
-        {sparks.map((s) => (
-          <span
-            key={s.id}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: '50%',
-              transform: `translate3d(${s.x}px, ${s.y}px, 0)`,
-              width: `${s.size}px`,
-              height: `${s.size}px`,
-              backgroundColor: s.color,
-              opacity: s.alpha,
-              boxShadow: `0 0 5px ${s.color}`,
-              borderRadius: '9999px',
-            }}
-          />
-        ))}
-
-        {/* Impact Contact Flash right on the edge */}
-        {impactFlash && (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-2px',
-              left: `calc(50% + ${CONTACT_X}px)`,
-              transform: 'translate(-50%, 50%)',
-            }}
-            className="h-3 w-3 rounded-full bg-accent/80 blur-[2px] animate-ping"
-          />
-        )}
-      </div>
-
-      {/* Silhouette Graphic Container */}
+      {/* Craftsman SVG Graphic Container */}
       <div
         style={{
           transform: isFacingLeft ? 'none' : 'scaleX(-1)',
           transformOrigin: 'center bottom',
         }}
-        className="relative w-14 h-16 sm:w-16 sm:h-18 filter drop-shadow-[0_4px_10px_rgba(0,0,0,0.85)]"
+        className="relative w-16 h-18 sm:w-20 sm:h-22 filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.85)]"
       >
         <svg
-          viewBox="0 0 100 110"
+          viewBox="-20 0 125 110"
           className="w-full h-full overflow-visible"
         >
           <defs>
@@ -274,14 +354,49 @@ export default function CornerWorker({
               <stop offset="100%" stopColor="#A88248" />
             </linearGradient>
 
-            <filter id="cornerGlow" x="-20%" y="-20%" width="140%" height="140%">
+            {/* Pickaxe Head Top Facet (Chiseled Metallic Highlight) */}
+            <linearGradient id="pickHeadTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="35%" stopColor="#FFF5E3" />
+              <stop offset="70%" stopColor="#D9BA89" />
+              <stop offset="100%" stopColor="#B58F52" />
+            </linearGradient>
+
+            {/* Pickaxe Head Bottom Facet (Forged Bronze Shadow Bevel) */}
+            <linearGradient id="pickHeadShadowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#A68144" />
+              <stop offset="50%" stopColor="#6E5023" />
+              <stop offset="100%" stopColor="#402D11" />
+            </linearGradient>
+
+            {/* Wooden Handle Gradient (Polished Ash/Hickory Haft) */}
+            <linearGradient id="woodHaftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F5DFBC" />
+              <stop offset="50%" stopColor="#CBA56B" />
+              <stop offset="100%" stopColor="#875E26" />
+            </linearGradient>
+
+            {/* Miner Headlamp Beam Projection */}
+            <linearGradient id="headlampBeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.45" />
+              <stop offset="40%" stopColor="#FFE8B5" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#D1B280" stopOpacity="0" />
+            </linearGradient>
+
+            <filter id="cornerGlow" x="-30%" y="-30%" width="160%" height="160%">
               <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#D1B280" floodOpacity="0.45" />
             </filter>
+
+            <radialGradient id="sparkFlashGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+              <stop offset="35%" stopColor="#FFE8B5" stopOpacity="0.95" />
+              <stop offset="70%" stopColor="#D1B280" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#D1B280" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
-          {/* BASE SILHOUETTE BODY (Matching image.png) */}
-          <g style={{ transform: `rotate(${torsoLean}deg)`, transformOrigin: '55px 72px' }}>
-            {/* LEGS: Authentic Miner / Mason Stance from image.png */}
+          {/* BASE SILHOUETTE BODY (Leans dynamically with swing) */}
+          <g className="miner-torso-lean">
             {/* Back Leg (Braced backward) */}
             <g>
               <path
@@ -292,11 +407,11 @@ export default function CornerWorker({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Back Foot resting flat on the box edge */}
+              {/* Back Foot resting flat on the box/word line */}
               <ellipse cx="37" cy="100" rx="5" ry="3.5" fill="url(#cornerGoldGrad)" />
             </g>
 
-            {/* Front Leg (Bent forward at knee toward edge) */}
+            {/* Front Leg (Bent forward at knee toward contact point) */}
             <g>
               <path
                 d="M 56 70 Q 64 78 68 85 L 75 100"
@@ -306,81 +421,210 @@ export default function CornerWorker({
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-              {/* Front Foot planted firmly on the box edge */}
+              {/* Front Foot planted firmly on the box/word line */}
               <ellipse cx="76" cy="100" rx="5.5" ry="3.5" fill="url(#cornerGoldGrad)" />
             </g>
 
-            {/* TORSO: Arched back leaning forward toward pickaxe */}
+            {/* TORSO: Muscular arched back leaning toward the tool */}
             <path
               d="M 50 72 Q 44 55 58 38 L 66 40 Q 56 58 58 72 Z"
               fill="url(#cornerGoldGrad)"
             />
-            {/* Shoulder blend */}
-            <circle cx="60" cy="40" r="6" fill="url(#cornerGoldGrad)" />
+            {/* Shoulder blend socket */}
+            <circle cx="58" cy="40" r="6" fill="url(#cornerGoldGrad)" />
 
-            {/* HEAD: Solid round circle from image.png */}
-            <circle cx="66" cy="22" r="9.5" fill="url(#cornerGoldGrad)" />
+            {/* HEAD: Miner Silhouette with Hardhat & Headlamp */}
+            <g>
+              {/* Face/Head profile */}
+              <circle cx="66" cy="24" r="8.5" fill="url(#cornerGoldGrad)" />
+              {/* Miner Hardhat Dome */}
+              <path
+                d="M 57 23 Q 56 13 67 13 Q 77 13 77 23 Z"
+                fill="#FFF1D6"
+                stroke="#A88248"
+                strokeWidth="1"
+              />
+              {/* Helmet Front Brim */}
+              <path
+                d="M 53 23 L 78 23"
+                stroke="#FFF6E0"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+              {/* Headlamp Housing & Glowing Lens */}
+              <rect x="53" y="20" width="3.5" height="4" rx="1" fill="#CBA56B" />
+              <circle cx="53" cy="22" r="2" fill="#FFFFFF" />
+              {/* Soft Headlamp Spotlight projected onto work target */}
+              <polygon
+                points="52,22 14,92 34,98"
+                fill="url(#headlampBeamGrad)"
+                pointerEvents="none"
+              />
+            </g>
           </g>
 
-          {/* ARMS & PICKAXE (Pivots dynamically for the edge tap) */}
-          <g
-            style={{
-              transform: `rotate(${armRotation}deg)`,
-              transformOrigin: '60px 40px',
-              transition: 'transform 0.06s ease-out',
-            }}
-            filter="url(#cornerGlow)"
-          >
-            {/* Back Arm gripping shaft base */}
+          {/* ARMS & ICONIC PICKAXE (Pivots from shoulder at 58, 40 to strike surface at 18, 100) */}
+          <g className="miner-arm-swing" filter="url(#cornerGlow)">
+            {/* 1. BACK ARM (Upper arm reaching down to back grip) */}
             <path
-              d="M 60 40 Q 52 48 44 48"
+              d="M 58 40 Q 55 52 50 62"
               fill="none"
               stroke="url(#cornerGoldGrad)"
-              strokeWidth="7"
+              strokeWidth="6.5"
               strokeLinecap="round"
             />
 
-            {/* Front Arm gripping shaft middle */}
+            {/* 2. FRONT ARM (Reaching forward down along handle) */}
             <path
-              d="M 60 40 Q 44 38 32 38"
+              d="M 58 40 Q 46 54 38 65"
               fill="none"
               stroke="url(#cornerGoldGrad)"
-              strokeWidth="7"
+              strokeWidth="6.5"
               strokeLinecap="round"
             />
 
-            {/* PICKAXE TOOL (Faithfully shaped like image.png) */}
-            {/* Pickaxe Straight Handle */}
-            <line
-              x1="52"
-              y1="54"
-              x2="20"
-              y2="22"
-              stroke="#FFF0D4"
-              strokeWidth="5"
-              strokeLinecap="round"
-            />
+            {/* 3. WOODEN HANDLE (Polished Straight Ash/Hickory Shaft) */}
+            <g id="pickaxe-haft">
+              {/* Wooden shaft base */}
+              <line
+                x1="60"
+                y1="58"
+                x2="12"
+                y2="70"
+                stroke="url(#woodHaftGrad)"
+                strokeWidth="4.5"
+                strokeLinecap="round"
+              />
+              {/* Wooden shaft inner highlight */}
+              <line
+                x1="59"
+                y1="58.5"
+                x2="13"
+                y2="69.5"
+                stroke="#FFF2DC"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+              {/* Rounded ergonomic butt knob */}
+              <circle
+                cx="60"
+                cy="58"
+                r="3"
+                fill="#CBA56B"
+                stroke="#6E5023"
+                strokeWidth="0.8"
+              />
+              {/* Wooden nose tip protruding out the front of the eye collar */}
+              <polygon
+                points="12,70 17,68.8 17,71.2 12,71"
+                fill="#F5DFBC"
+              />
+              {/* Dark iron fixing wedge driven into the nose end grain */}
+              <polygon
+                points="12,69.5 14.5,70 12,70.5"
+                fill="#2E210D"
+              />
+            </g>
 
-            {/* Curved Pickaxe Head & Pointed Pick Spike (image.png) */}
-            {/* Front Pick: Arched curved claw tapering to sharp pointed tip */}
-            <path
-              d="M 20 22 Q 13 32 8 38 Q 14 34 22 24 Z"
+            {/* 4. ICONIC CURVED PICKAXE HEAD (Forged Double-Horned Arch) */}
+            <g id="pickaxe-head">
+              {/* Top/Outer Facet (Sunlit upper bevel) */}
+              <path
+                d="M 24 34 Q 13 68 18 100 Q 17 68 24 34 Z"
+                fill="url(#pickHeadTopGrad)"
+              />
+
+              {/* Bottom/Inner Facet (Forged bronze shadow bevel) */}
+              <path
+                d="M 24 34 Q 17 68 18 100 Q 22 86 25 72 L 25 64 Q 24 50 24 34 Z"
+                fill="url(#pickHeadShadowGrad)"
+              />
+
+              {/* Raised Central Spine/Ridge Line */}
+              <path
+                d="M 24 34 Q 17 68 18 100"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth="0.9"
+                opacity="0.85"
+              />
+
+              {/* Heavy Forged Eye Socket Collar mounting head to shaft */}
+              <polygon
+                points="17,63 25,62 26,73 18,74"
+                fill="url(#cornerGoldGrad)"
+                stroke="#402D11"
+                strokeWidth="0.8"
+              />
+              {/* Collar Fixing Rivet Pin */}
+              <circle cx="21.5" cy="67.5" r="1.3" fill="#FFFFFF" />
+
+              {/* Sharp Strike Tip Glint (Directly at contact point 18, 100) */}
+              <circle cx="18" cy="100" r="1.8" fill="#FFFFFF" />
+
+              {/* Upper Counter-Spike Glint */}
+              <circle cx="24" cy="34" r="1.3" fill="#FFFFFF" />
+            </g>
+
+            {/* 5. MINER'S HANDS GRIPPING THE HAFT */}
+            {/* Back Hand Grip */}
+            <ellipse
+              cx="50"
+              cy="62"
+              rx="3.5"
+              ry="3"
               fill="url(#cornerGoldGrad)"
+              stroke="#6E5023"
+              strokeWidth="0.8"
             />
-            {/* Back Pick / Hammer Head */}
-            <path
-              d="M 20 22 L 26 16 L 28 18 L 22 24 Z"
+            {/* Front Hand Grip */}
+            <ellipse
+              cx="38"
+              cy="65"
+              rx="3.5"
+              ry="3"
               fill="url(#cornerGoldGrad)"
+              stroke="#6E5023"
+              strokeWidth="0.8"
+            />
+          </g>
+
+          {/* SYNCHRONIZED IMPACT BURST & SPARKS (Directly at contact point 18, 100) */}
+          <g>
+            {/* Impact Flash radiating when pickaxe strikes the word */}
+            <circle
+              className="miner-contact-burst"
+              cx="18"
+              cy="100"
+              r="7"
+              fill="url(#sparkFlashGrad)"
             />
 
-            {/* Central pickaxe eye / collar */}
-            <circle cx="21" cy="23" r="3.5" fill="#FFFFFF" />
+            {/* Rhythmic sparks flying off the contact point */}
+            <circle className="miner-spark-1" cx="18" cy="100" r="1.4" fill="#FFFFFF" />
+            <circle className="miner-spark-2" cx="18" cy="100" r="1.9" fill="#FFF3D6" />
+            <circle className="miner-spark-3" cx="18" cy="100" r="1.6" fill="#FCD34D" />
+            <circle className="miner-spark-4" cx="18" cy="100" r="1.2" fill="#D1B280" />
+            <circle className="miner-spark-5" cx="18" cy="100" r="2.1" fill="#FFFFFF" />
+            <circle className="miner-spark-6" cx="18" cy="100" r="1.5" fill="#2FA87A" />
+            <circle className="miner-spark-7" cx="18" cy="100" r="1.7" fill="#FFEAA7" />
 
-            {/* Sharp Pick Tip Highlight */}
-            <circle cx="8" cy="38" r="1.5" fill="#FFFFFF" />
+            {/* Interactive Click Sparks */}
+            {clickSparks.map((s) => (
+              <circle
+                key={s.id}
+                cx={s.x}
+                cy={s.y}
+                r={s.size}
+                fill={s.color}
+                opacity={s.alpha}
+              />
+            ))}
           </g>
         </svg>
       </div>
     </div>
   );
-}
+});
+
+export default CornerWorker;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { 
   Compass, 
@@ -99,10 +99,10 @@ export default function WhyWorkWithMe() {
   const [activeStep, setActiveStep] = useState(0);
   const [workImpact, setWorkImpact] = useState(false);
 
-  const handleWorkImpact = () => {
+  const handleWorkImpact = useCallback(() => {
     setWorkImpact(true);
-    setTimeout(() => setWorkImpact(false), 90);
-  };
+    setTimeout(() => setWorkImpact(false), 120);
+  }, []);
 
   return (
     <section id="approach" className="relative border-b border-white/10 bg-transparent px-6 py-28 overflow-hidden">

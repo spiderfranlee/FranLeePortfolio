@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowUp, Linkedin, Github, Menu, X } from 'lucide-react';
 
 import Hero from './components/Hero';
 import CredentialShowcase from './components/CredentialShowcase';
 import WhyWorkWithMe from './components/WhyWorkWithMe';
-import BentoGrid from './components/BentoGrid';
-import Projects from './components/Projects';
-import TechnicalPortfolio from './components/TechnicalPortfolio';
-import Pricing from './components/Pricing';
-import ContactSection from './components/ContactSection';
-import FAQ from './components/FAQ';
-import CustomCursor from './components/CustomCursor';
-import AIChatWidget from './components/AIChatWidget';
-import OrganicGrowthBackground from './components/OrganicGrowthBackground';
+
+// Below-the-fold sections dynamically imported to maximize First Contentful Paint & minimize TBT
+const Projects = lazy(() => import('./components/Projects'));
+const TechnicalPortfolio = lazy(() => import('./components/TechnicalPortfolio'));
+const BentoGrid = lazy(() => import('./components/BentoGrid'));
+const Pricing = lazy(() => import('./components/Pricing'));
+const ContactSection = lazy(() => import('./components/ContactSection'));
+const FAQ = lazy(() => import('./components/FAQ'));
+const AIChatWidget = lazy(() => import('./components/AIChatWidget'));
+const CustomCursor = lazy(() => import('./components/CustomCursor'));
+const OrganicGrowthBackground = lazy(() => import('./components/OrganicGrowthBackground'));
 
 const NAV = [
   { href: '#approach', label: 'approach' },
@@ -56,7 +58,9 @@ export default function App() {
   return (
     <div className="relative flex min-h-screen flex-col bg-[#0A0A0A] font-sans text-zinc-300 antialiased selection:bg-accent/40 selection:text-white overflow-x-hidden">
       {/* Dynamic Botanical Growth: Seeds Sprouting Into Trees & Floating Spores */}
-      <OrganicGrowthBackground />
+      <Suspense fallback={null}>
+        <OrganicGrowthBackground />
+      </Suspense>
 
       {/* Background Ambient Clinician Glows (Surgical Mint/Sage & Warm Champagne Gold on the margins to brighten up the sides) */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
@@ -170,12 +174,14 @@ export default function App() {
         <Hero />
         <CredentialShowcase />
         <WhyWorkWithMe />
-        <Projects />
-        <TechnicalPortfolio />
-        <BentoGrid />
-        <Pricing />
-        <ContactSection />
-        <FAQ />
+        <Suspense fallback={<div className="min-h-[200px]" />}>
+          <Projects />
+          <TechnicalPortfolio />
+          <BentoGrid />
+          <Pricing />
+          <ContactSection />
+          <FAQ />
+        </Suspense>
       </main>
 
       <footer className="border-t border-white/10 bg-black py-12 text-center text-sm text-zinc-500">
@@ -225,8 +231,10 @@ export default function App() {
       </AnimatePresence>
 
       {/* 24/7 AI Interactive On-Site Chat Assistant Widget */}
-      <AIChatWidget />
-      <CustomCursor />
+      <Suspense fallback={null}>
+        <AIChatWidget />
+        <CustomCursor />
+      </Suspense>
     </div>
   );
 }

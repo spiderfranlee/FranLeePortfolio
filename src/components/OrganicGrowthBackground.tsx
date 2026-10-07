@@ -186,7 +186,21 @@ export default function OrganicGrowthBackground() {
 
     // Animation Loop
     let time = 0;
+    let isTabVisible = !document.hidden;
+
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible && !animationFrameId) {
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     const render = () => {
+      if (!isTabVisible) {
+        animationFrameId = 0;
+        return;
+      }
       time += 1;
       ctx.clearRect(0, 0, width, height);
 
@@ -444,6 +458,7 @@ export default function OrganicGrowthBackground() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('click', handleClick);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

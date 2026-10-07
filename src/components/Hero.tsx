@@ -206,6 +206,7 @@ export default function Hero() {
               <img
                 src="https://media.theresetclann.com/fran%20image.jpg"
                 alt="Fran Lee"
+                decoding="async"
                 onError={(e) => {
                   // Fallback to local copy or initials
                   const imgEl = e.currentTarget;
@@ -306,6 +307,8 @@ export default function Hero() {
                   }}
                   className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
                 {/* Subtle shirt-only bottom gradient */}
                 <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/40 to-transparent pointer-events-none" />
