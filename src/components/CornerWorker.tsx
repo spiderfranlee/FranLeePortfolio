@@ -30,13 +30,29 @@ const CornerWorker = memo(function CornerWorker({
   const [clickSparks, setClickSparks] = useState<ClickSpark[]>([]);
   const sparkIdRef = useRef(0);
   const clickAnimFrameRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const isFacingLeft = position === 'top-right' || position === 'on-word';
+
+  // Pause work loop when offscreen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Synchronize the parent's onImpact pulse with the rhythmic 0.85s strike cycle
   // (Impact lands at ~68% into the cycle = 580ms from cycle start)
   useEffect(() => {
-    if (!onImpact) return;
+    if (!onImpact || !isVisible) return;
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
     const initialDelay = setTimeout(() => {
@@ -164,6 +180,7 @@ const CornerWorker = memo(function CornerWorker({
 
   return (
     <div
+      ref={containerRef}
       onClick={handleWorkerClick}
       style={containerStyle}
       className="cursor-pointer select-none group pointer-events-auto"

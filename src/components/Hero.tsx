@@ -75,15 +75,25 @@ const TRUST = ['1-on-1 technical partner', 'Clinics, coaches & small businesses'
 
 export default function Hero() {
   const offerRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!offerRef.current) return;
+    if (!offerRef.current || isReduced) return;
     const rect = offerRef.current.getBoundingClientRect();
-    setCoords({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!offerRef.current) return;
+      const rotX = -((y - rect.height / 2) / rect.height) * 12;
+      const rotY = ((x - rect.width / 2) / rect.width) * 12;
+      offerRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+      offerRef.current.style.setProperty('--spotlight-x', `${x}px`);
+      offerRef.current.style.setProperty('--spotlight-y', `${y}px`);
     });
   };
 
@@ -92,14 +102,13 @@ export default function Hero() {
     playOfferHoverSound();
   };
 
-  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
-  const rotateX = isHovered && offerRef.current && !isReduced
-    ? -((coords.y - offerRef.current.offsetHeight / 2) / offerRef.current.offsetHeight) * 12
-    : 0;
-  const rotateY = isHovered && offerRef.current && !isReduced
-    ? ((coords.x - offerRef.current.offsetWidth / 2) / offerRef.current.offsetWidth) * 12
-    : 0;
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (offerRef.current) {
+      offerRef.current.style.transform = 'none';
+    }
+  };
 
   return (
     <section
@@ -345,25 +354,22 @@ export default function Hero() {
             ref={offerRef}
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseLeave={handleMouseLeave}
             style={{
-              transform: !isReduced 
-                ? `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)` 
-                : 'none',
               transition: isHovered 
-                ? 'transform 0.1s ease-out, border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-                : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
+                ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
+                : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
               boxShadow: isHovered && !isReduced ? '0 25px 50px rgba(209, 178, 128, 0.12)' : 'none',
               zIndex: isHovered ? 20 : 1,
             }}
             className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-2xl hover:border-accent/40 cursor-pointer w-full max-w-full shadow-2xl transition-all duration-300"
           >
-            {/* Spotlight overlay */}
+            {/* Spotlight overlay using CSS variables */}
             {isHovered && !isReduced && (
               <div 
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, rgba(209, 178, 128, 0.08), transparent 70%)`,
+                  background: 'radial-gradient(350px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(209, 178, 128, 0.08), transparent 70%)',
                   zIndex: 2,
                 }}
               />

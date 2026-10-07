@@ -134,15 +134,25 @@ import React, { useRef, useState } from 'react';
 
 function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
+  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || isReduced) return;
     const rect = cardRef.current.getBoundingClientRect();
-    setCoords({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      const rotX = -((y - rect.height / 2) / rect.height) * 12;
+      const rotY = ((x - rect.width / 2) / rect.width) * 12;
+      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+      cardRef.current.style.setProperty('--spotlight-x', `${x}px`);
+      cardRef.current.style.setProperty('--spotlight-y', `${y}px`);
     });
   };
 
@@ -151,14 +161,13 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
     playCredentialSound(cred.id);
   };
 
-  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
-  const rotateX = isHovered && cardRef.current && !isReduced
-    ? -((coords.y - cardRef.current.offsetHeight / 2) / cardRef.current.offsetHeight) * 12
-    : 0;
-  const rotateY = isHovered && cardRef.current && !isReduced
-    ? ((coords.x - cardRef.current.offsetWidth / 2) / cardRef.current.offsetWidth) * 12
-    : 0;
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'none';
+    }
+  };
 
   const resolvedAccentColor = cred.id.startsWith('ucd--bsc') ? VERIFIED_GREEN : ACCENT;
 
@@ -167,14 +176,11 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={handleMouseLeave}
       style={{
-        transform: !isReduced 
-          ? `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)` 
-          : 'none',
         transition: isHovered 
-          ? 'transform 0.1s ease-out, border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-          : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
+          ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
+          : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
         boxShadow: isHovered && !isReduced ? `0 25px 50px rgba(47, 168, 122, 0.08)` : 'none',
         zIndex: isHovered ? 20 : 1,
       }}
@@ -193,7 +199,7 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: `radial-gradient(350px circle at ${coords.x}px ${coords.y}px, rgba(47, 168, 122, 0.04), transparent 70%)`,
+            background: 'radial-gradient(350px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(47, 168, 122, 0.04), transparent 70%)',
             zIndex: 1,
           }}
         />

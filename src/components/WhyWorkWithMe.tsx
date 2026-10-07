@@ -68,6 +68,29 @@ interface Step {
   deliverable: string;
 }
 
+const WorkWordTarget = React.memo(function WorkWordTarget() {
+  const [workImpact, setWorkImpact] = useState(false);
+
+  const handleWorkImpact = useCallback(() => {
+    setWorkImpact(true);
+    setTimeout(() => setWorkImpact(false), 120);
+  }, []);
+
+  return (
+    <span 
+      className={`relative inline-block transition-colors duration-150 ${
+        workImpact 
+          ? 'text-white [text-shadow:0_0_20px_#D1B280,0_0_35px_#D1B280]' 
+          : 'text-accent [text-shadow:0_0_10px_rgba(209,178,128,0.25)]'
+      }`}
+    >
+      <span>Work.</span>
+      {/* Pickaxe Silhouette Craftsman tapping on top of the work with edge sparks */}
+      <CornerWorker position="on-word" boxLabel="How I Work" onImpact={handleWorkImpact} />
+    </span>
+  );
+});
+
 const STEPS: Step[] = [
   {
     number: '01',
@@ -97,12 +120,6 @@ const STEPS: Step[] = [
 
 export default function WhyWorkWithMe() {
   const [activeStep, setActiveStep] = useState(0);
-  const [workImpact, setWorkImpact] = useState(false);
-
-  const handleWorkImpact = useCallback(() => {
-    setWorkImpact(true);
-    setTimeout(() => setWorkImpact(false), 120);
-  }, []);
 
   return (
     <section id="approach" className="relative border-b border-white/10 bg-transparent px-6 py-28 overflow-hidden">
@@ -209,17 +226,7 @@ export default function WhyWorkWithMe() {
             </div>
             <h2 className="font-display text-3xl sm:text-5xl font-black tracking-tight text-white leading-[1.05] pt-12 sm:pt-14">
               <span>How I </span>
-              <span 
-                className={`relative inline-block transition-colors duration-150 ${
-                  workImpact 
-                    ? 'text-white [text-shadow:0_0_20px_#D1B280,0_0_35px_#D1B280]' 
-                    : 'text-accent [text-shadow:0_0_10px_rgba(209,178,128,0.25)]'
-                }`}
-              >
-                <span>Work.</span>
-                {/* Pickaxe Silhouette Craftsman tapping on top of the work with edge sparks */}
-                <CornerWorker position="on-word" boxLabel="How I Work" onImpact={handleWorkImpact} />
-              </span>
+              <WorkWordTarget />
             </h2>
             <p className="mt-4 text-sm sm:text-base text-zinc-400 font-sans leading-relaxed">
               From our first conversation to full production launch, here is the exact 3-step roadmap to get your digital engine built, integrated, and humming.

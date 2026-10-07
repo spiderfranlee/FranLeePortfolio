@@ -80,19 +80,48 @@ export default function OrganicGrowthBackground() {
 
     const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // High performance: Pre-render offscreen spore stamps to eliminate 2,000+ createRadialGradient calls per second
+    const sporeColors = ['#D1B280', '#2FA87A', '#E8D5B5', '#6ee7b7', '#F0E6D2'];
+    const sporeSprites: Record<string, HTMLCanvasElement> = {};
+    const SPRITE_SIZE = 32;
+
+    for (const color of sporeColors) {
+      const off = document.createElement('canvas');
+      off.width = SPRITE_SIZE;
+      off.height = SPRITE_SIZE;
+      const offCtx = off.getContext('2d');
+      if (offCtx) {
+        const center = SPRITE_SIZE / 2;
+        const g = offCtx.createRadialGradient(center, center, 0, center, center, center);
+        g.addColorStop(0, color);
+        g.addColorStop(0.5, color === '#2FA87A' ? 'rgba(47, 168, 122, 0.4)' : 'rgba(209, 178, 128, 0.4)');
+        g.addColorStop(1, 'transparent');
+        offCtx.fillStyle = g;
+        offCtx.beginPath();
+        offCtx.arc(center, center, center, 0, Math.PI * 2);
+        offCtx.fill();
+
+        // Nucleus
+        offCtx.fillStyle = '#FFFFFF';
+        offCtx.beginPath();
+        offCtx.arc(center, center, center * 0.2, 0, Math.PI * 2);
+        offCtx.fill();
+      }
+      sporeSprites[color] = off;
+    }
+
     // Ambient floating spores (pollen & seeds floating gently upwards)
     const ambientSpores: Spore[] = [];
-    const MAX_AMBIENT_SPORES = isReducedMotion ? 15 : 45;
+    const MAX_AMBIENT_SPORES = isReducedMotion ? 10 : 22;
 
     const createSpore = (customX?: number, customY?: number, isSeed = false): Spore => {
-      const colors = ['#D1B280', '#2FA87A', '#E8D5B5', '#6ee7b7', '#F0E6D2'];
       return {
         x: customX ?? Math.random() * width,
         y: customY ?? height + Math.random() * 50,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: isSeed ? -(0.8 + Math.random() * 1.2) : -(0.3 + Math.random() * 0.7),
-        size: isSeed ? 2.5 + Math.random() * 2 : 1 + Math.random() * 2.2,
-        color: colors[Math.floor(Math.random() * colors.length)],
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: isSeed ? -(0.7 + Math.random() * 1.0) : -(0.3 + Math.random() * 0.5),
+        size: isSeed ? 2.5 + Math.random() * 1.5 : 1 + Math.random() * 1.8,
+        color: sporeColors[Math.floor(Math.random() * sporeColors.length)],
         alpha: 0,
         maxAlpha: isSeed ? 0.8 : 0.25 + Math.random() * 0.45,
         life: 0,
@@ -233,22 +262,15 @@ export default function OrganicGrowthBackground() {
           tree.seedPulse += 0.08;
           const pulseSize = 3 + Math.sin(tree.seedPulse) * 1.5;
 
-          // Outer halo
-          const grad = ctx.createRadialGradient(
-            tree.seedX,
-            tree.seedY,
-            0,
-            tree.seedX,
-            tree.seedY,
-            pulseSize * 6
-          );
-          grad.addColorStop(0, 'rgba(209, 178, 128, 0.9)');
-          grad.addColorStop(0.4, 'rgba(47, 168, 122, 0.4)');
-          grad.addColorStop(1, 'rgba(47, 168, 122, 0)');
-
-          ctx.fillStyle = grad;
+          // Outer halo using cached sprite or clean glow fill
+          ctx.fillStyle = 'rgba(47, 168, 122, 0.25)';
           ctx.beginPath();
-          ctx.arc(tree.seedX, tree.seedY, pulseSize * 6, 0, Math.PI * 2);
+          ctx.arc(tree.seedX, tree.seedY, pulseSize * 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = 'rgba(209, 178, 128, 0.6)';
+          ctx.beginPath();
+          ctx.arc(tree.seedX, tree.seedY, pulseSize * 2.5, 0, Math.PI * 2);
           ctx.fill();
 
           // Core bright seed
@@ -401,7 +423,7 @@ export default function OrganicGrowthBackground() {
         ctx.restore();
       }
 
-      // 2. Render & Update Floating Spores / Rising Seeds
+      // 2. Render & Update Floating Spores / Rising Seeds (Hardware accelerated via cached sprite blitting)
       for (let i = 0; i < ambientSpores.length; i++) {
         const sp = ambientSpores[i];
         sp.life++;
@@ -426,28 +448,14 @@ export default function OrganicGrowthBackground() {
           continue;
         }
 
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, sp.alpha);
-
-        // Soft halo
-        const sporeGrad = ctx.createRadialGradient(sp.x, sp.y, 0, sp.x, sp.y, sp.size * 3);
-        sporeGrad.addColorStop(0, sp.color);
-        sporeGrad.addColorStop(0.5, sp.color === '#2FA87A' ? 'rgba(47, 168, 122, 0.4)' : 'rgba(209, 178, 128, 0.4)');
-        sporeGrad.addColorStop(1, 'transparent');
-
-        ctx.fillStyle = sporeGrad;
-        ctx.beginPath();
-        ctx.arc(sp.x, sp.y, sp.size * 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Seed nucleus
-        ctx.fillStyle = '#FFFFFF';
-        ctx.beginPath();
-        ctx.arc(sp.x, sp.y, sp.size * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
+        const sprite = sporeSprites[sp.color];
+        if (sprite) {
+          ctx.globalAlpha = Math.max(0, sp.alpha);
+          const r = sp.size * 3;
+          ctx.drawImage(sprite, sp.x - r, sp.y - r, r * 2, r * 2);
+        }
       }
+      ctx.globalAlpha = 1;
 
       animationFrameId = requestAnimationFrame(render);
     };

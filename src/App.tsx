@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowUp, Linkedin, Github, Menu, X } from 'lucide-react';
+import { ArrowUp, ArrowUpRight, Linkedin, Github, Menu, X } from 'lucide-react';
 
 import Hero from './components/Hero';
 import CredentialShowcase from './components/CredentialShowcase';
@@ -14,7 +14,6 @@ const Pricing = lazy(() => import('./components/Pricing'));
 const ContactSection = lazy(() => import('./components/ContactSection'));
 const FAQ = lazy(() => import('./components/FAQ'));
 const AIChatWidget = lazy(() => import('./components/AIChatWidget'));
-const CustomCursor = lazy(() => import('./components/CustomCursor'));
 const OrganicGrowthBackground = lazy(() => import('./components/OrganicGrowthBackground'));
 
 const NAV = [
@@ -75,64 +74,93 @@ export default function App() {
         <div className="absolute top-[85%] right-[-180px] w-[500px] h-[500px] rounded-full bg-[#D1B280]/15 blur-[130px]" />
       </div>
 
-      {/* Full-Width Straight-Line Menu Bar Across The Whole Page (White gradient fading at top & bottom) */}
-      <header className="fixed inset-x-0 top-0 z-50 w-full straight-glass-bar">
-        {/* Subtle Liquid Light Shimmer */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="liquid-light-beam absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent blur-sm" />
-        </div>
+      {/* Full-Width Menu Bar in the Verified Expertise Technical Boxes Aesthetic */}
+      <header className="fixed inset-x-0 top-0 z-50 w-full straight-glass-bar font-display">
+        {/* Ambient Top Glows matching Verified Expertise card lighting */}
+        <div className="pointer-events-none absolute -top-10 right-8 w-72 h-28 rounded-full filter blur-[70px] opacity-20 bg-[#2FA87A]" />
+        <div className="pointer-events-none absolute -top-10 left-8 w-56 h-28 rounded-full filter blur-[70px] opacity-15 bg-[#D1B280]" />
+        
+        {/* Subtle background technical grid from Verified Expertise */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
 
         <div className="relative mx-auto flex h-16 sm:h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
-          {/* Brand Logo & Name */}
-          <a href="#top" className="group flex items-center gap-3 shrink-0">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full bg-[#2FA87A] opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 bg-[#2FA87A]" />
-            </span>
-            <span className="font-display text-lg sm:text-xl font-black tracking-tight text-white uppercase group-hover:text-accent transition-colors">
+          {/* Brand & Status Box (Mirrors the Certificate Inner Framing of Verified Expertise) */}
+          <a
+            href="#top"
+            className="group flex items-center gap-3 border border-white/10 bg-[#0d0d0d] px-3.5 py-1.5 sm:px-4 sm:py-2 hover:border-accent/40 transition-all duration-300 shadow-lg shrink-0 cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full bg-[#2FA87A] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 bg-[#2FA87A]" />
+              </span>
+              {/* Micro Sensory Equalizer Bars directly from Verified Expertise */}
+              <div className="flex gap-[1.5px] items-end h-2.5">
+                <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-1 opacity-30 group-hover:opacity-100 group-hover:animate-equalizer-one" />
+                <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-2.5 opacity-50 group-hover:opacity-100 group-hover:animate-equalizer-two" />
+                <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-1.5 opacity-40 group-hover:opacity-100 group-hover:animate-equalizer-three" />
+              </div>
+            </div>
+
+            <span className="font-display text-base sm:text-lg font-black tracking-tight text-white uppercase group-hover:text-accent transition-colors leading-none">
               Fran Lee
             </span>
-            <span className="hidden md:inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-accent/80 border-l border-white/15 pl-3 font-semibold">
-              Technical Partner
-            </span>
+
+            <div className="hidden sm:inline-flex items-center gap-1.5 border border-white/5 bg-black/60 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold">
+              // TECHNICAL PARTNER
+            </div>
           </a>
 
-          {/* Desktop Navigation Links with Straight Lines and High-Contrast Bold Typography */}
-          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2.5">
+          {/* Desktop Navigation Links — Modular Segmented Boxed Rail */}
+          <nav className="hidden md:flex items-center border border-white/10 bg-[#0d0d0d] p-1 divide-x divide-white/5 shadow-lg">
             {NAV.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="relative group px-3.5 lg:px-4 py-2 font-display text-sm lg:text-[15px] font-bold uppercase tracking-wider text-zinc-300 hover:text-white transition-colors"
+                className="relative group px-3.5 lg:px-4 py-1.5 font-display text-xs lg:text-[13px] font-black uppercase tracking-tight text-zinc-300 hover:text-white hover:bg-white/[0.04] transition-all"
               >
-                <span>{item.label}</span>
-                <span className="absolute bottom-0 inset-x-3.5 lg:inset-x-4 h-[2px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
+                <span className="flex items-center gap-1.5">
+                  <span className="text-accent text-[11px] font-black opacity-0 group-hover:opacity-100 transition-opacity">↳</span>
+                  <span>{item.label}</span>
+                </span>
+                <span className="absolute bottom-0 inset-x-2 h-[2px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-center" />
               </a>
             ))}
           </nav>
 
           {/* Right Action Area */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Micro record status indicator directly from Verified Expertise */}
+            <div className="hidden lg:flex items-center gap-2 border border-white/5 bg-black/50 px-2.5 py-1.5 font-mono text-[10px] text-zinc-400">
+              <span className="text-zinc-500">SYS:</span>
+              <span className="text-emerald-400 font-bold tracking-wider">ONLINE</span>
+            </div>
+
+            {/* Contact Button styled in the VERIFY CREDENTIAL button aesthetic */}
             <a
               href="#contact"
-              className="inline-flex items-center justify-center border border-accent/80 bg-accent/10 px-5 sm:px-6 py-2 sm:py-2.5 font-display text-xs sm:text-sm font-black uppercase tracking-wider text-accent transition-all hover:bg-accent hover:text-black hover:border-accent active:scale-95 shadow-[0_0_20px_rgba(209,178,128,0.15)]"
+              className="group/btn relative inline-flex items-center justify-between gap-2.5 bg-[#0a0a0a] overflow-hidden hover:bg-white text-white hover:text-black border border-white/15 hover:border-white px-4 py-2 sm:px-5 sm:py-2.5 transition-all duration-300 shadow-md cursor-pointer"
             >
-              Contact
+              <span className="font-mono text-[11px] font-black tracking-widest uppercase flex items-center gap-1.5 z-10">
+                CONTACT
+              </span>
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 text-accent group-hover/btn:text-black z-10" />
+              <div className="absolute inset-0 bg-white translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 pointer-events-none" />
             </a>
 
-            {/* Sharp Mobile Menu Toggle */}
+            {/* Sharp Mobile Menu Toggle Box */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden flex items-center justify-center h-10 w-10 border border-white/15 bg-white/5 text-zinc-200 hover:text-accent hover:border-accent active:scale-95 transition-all"
+              className="md:hidden flex items-center justify-center h-9 w-9 border border-white/15 bg-[#0a0a0a] text-zinc-200 hover:text-accent hover:border-accent active:scale-95 transition-all cursor-pointer"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Full-Width Straight-Line Drawer */}
+        {/* Mobile Boxed Drawer matching Verified Expertise structure */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -140,28 +168,49 @@ export default function App() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: 'easeInOut' }}
-              className="w-full straight-glass-drawer border-t border-white/10 md:hidden overflow-hidden"
+              className="w-full straight-glass-drawer border-t border-white/10 md:hidden overflow-hidden font-display relative"
             >
-              <div className="px-6 py-8 flex flex-col divide-y divide-white/10">
-                {NAV.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-4 font-display text-lg font-black uppercase tracking-wider text-zinc-200 hover:text-accent hover:pl-2 transition-all active:text-accent"
-                  >
-                    <span>{item.label}</span>
-                    <span className="font-mono text-sm text-accent">→</span>
-                  </a>
-                ))}
+              {/* Subtle ambient drawer glow */}
+              <div className="pointer-events-none absolute -right-12 top-0 w-48 h-48 rounded-full bg-[#2FA87A]/15 blur-[60px]" />
 
-                <div className="pt-6">
+              <div className="px-5 py-6 flex flex-col gap-4 relative z-10">
+                {/* Subtitle tag matching // CORE CAPABILITIES EVALUATED */}
+                <div className="text-[9px] font-mono uppercase tracking-widest text-accent font-bold px-1">
+                  // NAVIGATION INDEX
+                </div>
+
+                <div className="border border-white/10 bg-[#0d0d0d] divide-y divide-white/5 shadow-md">
+                  {NAV.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between px-4 py-3 font-display text-sm font-black uppercase tracking-tight text-zinc-200 hover:text-white hover:bg-white/[0.04] transition-all group"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-accent font-black text-xs">↳</span>
+                        <span>{item.label}</span>
+                      </div>
+                      <span className="font-mono text-xs text-accent/60 group-hover:text-accent group-hover:translate-x-0.5 transition-all">→</span>
+                    </a>
+                  ))}
+                </div>
+
+                {/* Grade and Timeline Metrics Row */}
+                <div className="flex items-center justify-between border border-white/5 bg-black/40 px-3 py-2 font-mono text-[10px] text-zinc-400">
+                  <span className="text-zinc-500">PARTNER STATUS:</span>
+                  <span className="text-emerald-400 font-bold tracking-wider">DUBLIN · VERIFIED DIRECT</span>
+                </div>
+
+                <div className="pt-1">
                   <a
                     href="#contact"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex w-full items-center justify-center border-2 border-accent bg-accent py-3.5 font-display text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-white hover:border-white shadow-[0_0_25px_rgba(209,178,128,0.2)]"
+                    className="group/btn relative flex w-full items-center justify-between gap-3 bg-[#0a0a0a] hover:bg-white text-white hover:text-black border border-white/15 hover:border-white px-4 py-3 transition-all duration-300 font-mono text-[11px] font-black tracking-widest uppercase shadow-md"
                   >
-                    Start A Project
+                    <span className="z-10 flex items-center gap-2">START A PROJECT</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-accent group-hover/btn:text-black z-10 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                    <div className="absolute inset-0 bg-white translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 pointer-events-none" />
                   </a>
                 </div>
               </div>
@@ -233,7 +282,6 @@ export default function App() {
       {/* 24/7 AI Interactive On-Site Chat Assistant Widget */}
       <Suspense fallback={null}>
         <AIChatWidget />
-        <CustomCursor />
       </Suspense>
     </div>
   );

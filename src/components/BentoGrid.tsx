@@ -131,7 +131,7 @@ function BentoCard({
   soundEnabled,
 }: BentoCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   // Setup styles based on design accents
@@ -140,12 +140,23 @@ function BentoCard({
   const textAccent = accentColor === 'gold' ? 'text-[#D1B280]' : 'text-[#2FA87A]';
   const glowDot = accentColor === 'gold' ? 'bg-[#D1B280]' : 'bg-[#2FA87A]';
 
+  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
+    if (!cardRef.current || isReduced) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setCoords({ x, y });
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!cardRef.current) return;
+      const rotX = -((y - rect.height / 2) / rect.height) * 12;
+      const rotY = ((x - rect.width / 2) / rect.width) * 12;
+      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+      cardRef.current.style.setProperty('--spotlight-x', `${x}px`);
+      cardRef.current.style.setProperty('--spotlight-y', `${y}px`);
+    });
   };
 
   const handleMouseEnter = () => {
@@ -157,17 +168,11 @@ function BentoCard({
 
   const handleMouseLeave = () => {
     setIsHovered(false);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (cardRef.current) {
+      cardRef.current.style.transform = 'none';
+    }
   };
-
-  // Safe 3D perspective transform parameters (always checks reduced-motion fallback)
-  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
-  const rotateX = isHovered && cardRef.current && !isReduced
-    ? -((coords.y - cardRef.current.offsetHeight / 2) / cardRef.current.offsetHeight) * 12
-    : 0;
-  const rotateY = isHovered && cardRef.current && !isReduced
-    ? ((coords.x - cardRef.current.offsetWidth / 2) / cardRef.current.offsetWidth) * 12
-    : 0;
 
   return (
     <div
@@ -176,12 +181,9 @@ function BentoCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
-        transform: !isReduced 
-          ? `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)` 
-          : 'none',
         transition: isHovered 
-          ? 'transform 0.1s ease-out, border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-          : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
+          ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
+          : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
         boxShadow: isHovered && !isReduced ? `0 25px 50px ${shadowColor}` : 'none',
         zIndex: isHovered ? 20 : 1,
       }}
@@ -197,7 +199,7 @@ function BentoCard({
             right: 0,
             bottom: 0,
             pointerEvents: 'none',
-            background: `radial-gradient(450px circle at ${coords.x}px ${coords.y}px, ${accentColor === 'gold' ? 'rgba(209, 178, 128, 0.05)' : 'rgba(47, 168, 122, 0.05)'}, transparent 80%)`,
+            background: `radial-gradient(450px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), ${accentColor === 'gold' ? 'rgba(209, 178, 128, 0.05)' : 'rgba(47, 168, 122, 0.05)'}, transparent 80%)`,
             zIndex: 1,
           }}
         />
