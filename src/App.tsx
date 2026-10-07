@@ -79,27 +79,30 @@ export default function App() {
         <div className="absolute top-[85%] right-[-180px] w-[500px] h-[500px] rounded-full bg-[#D1B280]/15 blur-[130px]" />
       </div>
 
-      {/* Full-Width Straight-Line Menu Bar Across The Whole Page */}
+      {/* Full-Width Straight-Line Menu Bar Across The Whole Page (White gradient fading at top & bottom) */}
       <header className="fixed inset-x-0 top-0 z-50 w-full straight-glass-bar">
-        {/* Subtle Liquid Top Light Accent */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] w-full overflow-hidden">
-          <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-white/80 to-transparent liquid-light-beam" />
+        {/* Subtle Liquid Light Shimmer */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="liquid-light-beam absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent blur-sm" />
         </div>
 
-        <div className="mx-auto flex h-16 sm:h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
+        <div className="relative mx-auto flex h-16 sm:h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-8">
           {/* Brand Logo & Name */}
           <a href="#top" className="group flex items-center gap-3 shrink-0">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 bg-accent" />
+              <span className="animate-ping absolute inline-flex h-full w-full bg-[#2FA87A] opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 bg-[#2FA87A]" />
             </span>
             <span className="font-display text-lg sm:text-xl font-black tracking-tight text-white uppercase group-hover:text-accent transition-colors">
               Fran Lee
             </span>
+            <span className="hidden md:inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.25em] text-accent/80 border-l border-white/15 pl-3 font-semibold">
+              Technical Partner
+            </span>
           </a>
 
-          {/* Desktop Navigation Links with Bigger Typography */}
-          <nav className="hidden md:flex items-center gap-2 lg:gap-3">
+          {/* Desktop Navigation Links with Straight Lines and High-Contrast Bold Typography */}
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2.5">
             {NAV.map((item) => (
               <a
                 key={item.href}
@@ -107,7 +110,7 @@ export default function App() {
                 className="relative group px-3.5 lg:px-4 py-2 font-display text-sm lg:text-[15px] font-bold uppercase tracking-wider text-zinc-300 hover:text-white transition-colors"
               >
                 <span>{item.label}</span>
-                <span className="absolute bottom-0 inset-x-3.5 lg:inset-x-4 h-[2px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-150 origin-left" />
+                <span className="absolute bottom-0 inset-x-3.5 lg:inset-x-4 h-[2px] bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left" />
               </a>
             ))}
           </nav>
@@ -116,7 +119,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <a
               href="#contact"
-              className="inline-flex items-center justify-center border border-accent bg-accent px-5 sm:px-6 py-2 sm:py-2.5 font-display text-xs sm:text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-transparent hover:text-accent active:scale-95 shadow-[0_0_20px_rgba(209,178,128,0.25)]"
+              className="inline-flex items-center justify-center border border-accent/80 bg-accent/10 px-5 sm:px-6 py-2 sm:py-2.5 font-display text-xs sm:text-sm font-black uppercase tracking-wider text-accent transition-all hover:bg-accent hover:text-black hover:border-accent active:scale-95 shadow-[0_0_20px_rgba(209,178,128,0.15)]"
             >
               Contact
             </a>
@@ -124,7 +127,7 @@ export default function App() {
             {/* Sharp Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden flex items-center justify-center h-10 w-10 border border-white/25 bg-white/10 text-white hover:bg-white/20 hover:border-white/40 active:scale-95 transition-all"
+              className="md:hidden flex items-center justify-center h-10 w-10 border border-white/15 bg-white/5 text-zinc-200 hover:text-accent hover:border-accent active:scale-95 transition-all"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -149,7 +152,7 @@ export default function App() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-4 font-display text-lg font-black uppercase tracking-wider text-zinc-100 hover:text-accent hover:pl-2 transition-all active:text-accent"
+                    className="flex items-center justify-between py-4 font-display text-lg font-black uppercase tracking-wider text-zinc-200 hover:text-accent hover:pl-2 transition-all active:text-accent"
                   >
                     <span>{item.label}</span>
                     <span className="font-mono text-sm text-accent">→</span>
@@ -160,7 +163,7 @@ export default function App() {
                   <a
                     href="#contact"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex w-full items-center justify-center border border-accent bg-accent py-3.5 font-display text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-transparent hover:text-accent"
+                    className="flex w-full items-center justify-center border-2 border-accent bg-accent py-3.5 font-display text-sm font-black uppercase tracking-wider text-black transition-all hover:bg-white hover:border-white shadow-[0_0_25px_rgba(209,178,128,0.2)]"
                   >
                     Start A Project
                   </a>

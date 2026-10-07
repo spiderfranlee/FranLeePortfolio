@@ -193,33 +193,60 @@ html, body {
   }
 }
 
-/* --- FULL-WIDTH STRAIGHT LIQUID GLASS MENU BAR --- */
+/* --- FULL-WIDTH STRAIGHT MENU BAR WITH WHITE GRADIENT (Fading off at top and bottom) --- */
 .straight-glass-bar {
+  position: relative;
+  /* Dark obsidian foundation overlaid with luminous white gradient fading at top & bottom */
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.08) 12%,
+      rgba(255, 255, 255, 0.18) 35%,
+      rgba(255, 255, 255, 0.22) 50%,
+      rgba(255, 255, 255, 0.18) 65%,
+      rgba(255, 255, 255, 0.08) 88%,
+      rgba(255, 255, 255, 0) 100%
+    ),
+    rgba(10, 10, 12, 0.88);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+}
+
+/* Subtle top hairline highlight */
+.straight-glass-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
   background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.03) 100%
-  ), rgba(10, 10, 12, 0.88);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 
-    0 10px 30px -10px rgba(0, 0, 0, 0.85),
-    0 2px 12px 0 rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 20%,
+    rgba(209, 178, 128, 0.45) 50%,
+    rgba(255, 255, 255, 0.25) 80%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 .straight-glass-drawer {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 100%
-  ), rgba(8, 8, 10, 0.98);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 25%,
+      rgba(10, 10, 12, 0.98) 100%
+    ),
+    rgba(10, 10, 12, 0.98);
   backdrop-filter: blur(28px) saturate(200%);
   -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 24px 48px 0 rgba(0, 0, 0, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 48px 0 rgba(0, 0, 0, 0.8);
 }
 
 @keyframes liquid-drift {
