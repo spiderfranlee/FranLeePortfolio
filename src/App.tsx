@@ -130,12 +130,6 @@ export default function App() {
 
           {/* Right Action Area */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Micro record status indicator directly from Verified Expertise */}
-            <div className="hidden lg:flex items-center gap-2 border border-white/5 bg-black/50 px-2.5 py-1.5 font-mono text-[10px] text-zinc-400">
-              <span className="text-zinc-500">SYS:</span>
-              <span className="text-emerald-400 font-bold tracking-wider">ONLINE</span>
-            </div>
-
             {/* Contact Button styled in the VERIFY CREDENTIAL button aesthetic */}
             <a
               href="#contact"
