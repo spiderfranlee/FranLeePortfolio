@@ -18,7 +18,7 @@ const PROOF_METRICS = [
     detail: 'Direct 1-on-1 engineering sprint',
   },
   {
-    value: 'UCD Honours + AI',
+    value: 'Computer Science and AI',
     label: 'Verified CS Foundation',
     detail: 'BSc Computer Science & 2× Distinction',
   },
