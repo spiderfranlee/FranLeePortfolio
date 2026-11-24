@@ -1,8 +1,10 @@
-import { motion } from 'motion/react';
-import { Award, ShieldCheck, ExternalLink, CheckCircle2, Landmark, BadgeAlert, ArrowUpRight } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { playHoverChime } from '../utils/audio';
 
-const ACCENT = '#D1B280';
-const VERIFIED_GREEN = '#2FA87A';
+interface CredentialShowcaseProps {
+  audioEnabled: boolean;
+}
 
 interface Credential {
   id: string;
@@ -14,8 +16,8 @@ interface Credential {
   description: string;
   verificationUrl: string;
   location: string;
-  badgeType: string;
   highlights: string[];
+  accentType: 'mint' | 'gold';
 }
 
 const CREDENTIALS_DATA: Credential[] = [
@@ -23,121 +25,69 @@ const CREDENTIALS_DATA: Credential[] = [
     id: 'ucd-bsc-cs',
     title: 'BSc in Computer Science',
     issuer: 'University College Dublin',
-    period: '',
-    grade: '',
+    period: 'Honours Degree',
+    grade: 'BSc (Hons)',
     hash: 'UCD-BSc-CS-2003',
-    description: 'Foundational Bachelor of Science Honours degree in Computer Science from Ireland\'s elite computing academy. Specialization in distributed software architecture, advanced algorithmic analysis, system networks, and relational databases.',
+    description:
+      "Foundational Bachelor of Science Honours degree in Computer Science from Ireland's leading computing faculty—covering distributed software architecture, algorithms, networks, and relational database design.",
     verificationUrl: 'https://www.ucd.ie/cs/',
     location: 'Dublin, IE',
-    badgeType: 'ACADEMIC DEGREE',
+    accentType: 'mint',
     highlights: [
-      'Bespoke website design, user experience architecture, and responsive full-stack coding',
-      'Advanced software engineering paradigms, object-oriented design, and database modeling',
-      'The formal logic and technical standards powering elite high-converting clinical applications'
-    ]
+      'Full-stack software architecture, responsive UX engineering & clean code standards',
+      'Relational database modeling, API design, and dependable web infrastructure',
+      'Formal computer science rigor powering fast, reliable client platforms',
+    ],
   },
   {
     id: 'ucd-advanced-ai',
     title: 'Advanced Artificial Intelligence',
     issuer: 'UCD Professional Academy',
-    period: 'May 29, 2026',
-    grade: 'Distinction (36 Hours)',
+    period: 'May 2026',
+    grade: 'Distinction · 36 Hours',
     hash: 'UCD-AAI-260529',
-    description: 'Professional Academy Diploma focusing on advanced artificial intelligence systems, including deep neural network topologies, autonomous agent construction, multi-turn cognitive workflows, and robust model scaling controls.',
+    description:
+      'Professional Academy Diploma focused on production artificial intelligence systems, neural architectures, autonomous agent workflows, and reliable model evaluation controls.',
     verificationUrl: 'https://www.ucdprofessionalacademy.com/',
     location: 'Dublin, IE',
-    badgeType: 'DIPLOMA WITH DISTINCTION',
+    accentType: 'gold',
     highlights: [
-      'Advanced neural architecture configuration & agent logic loops',
-      'Prompt hierarchies, model fine-tuning guidance, and context windows',
-      'Evaluated at peak distinction bracket over a rigorous examination cycle'
-    ]
+      'Autonomous agent design, structured tool calling & multi-turn routing',
+      'Prompt architecture, context management & grounded retrieval pipelines',
+      'Awarded peak Distinction bracket across formal assessment',
+    ],
   },
   {
     id: 'ucd-ai-business',
     title: 'Artificial Intelligence for Business',
     issuer: 'UCD Professional Academy',
-    period: 'July 28, 2025',
-    grade: 'Distinction (36 Hours)',
+    period: 'July 2025',
+    grade: 'Distinction · 36 Hours',
     hash: 'UCD-AIB-250728',
-    description: 'Professional Academy Diploma designing AI strategies to optimize modern business workflows, streamline enterprise operations, configure reliable trust layers, and map governance guidelines.',
+    description:
+      'Professional Academy Diploma dedicated to translating AI into measurable commercial ROI, streamlining operational workflows, and designing trustworthy governance guardrails.',
     verificationUrl: 'https://www.ucdprofessionalacademy.com/',
     location: 'Dublin, IE',
-    badgeType: 'DIPLOMA WITH DISTINCTION',
+    accentType: 'gold',
     highlights: [
-      'Strategic enterprise AI selection, operational optimization & value planning',
-      'AI-driven risk mitigation, ethical compliance policy systems & trust layers',
-      'Evaluated at peak distinction bracket over comprehensive operational cases'
-    ]
-  }
+      'Commercial AI strategy, workflow automation & practical ROI modeling',
+      'Risk mitigation, EU AI Act alignment & reliable human-in-the-loop controls',
+      'Awarded peak Distinction bracket across operational case assessments',
+    ],
+  },
 ];
 
-const playCredentialSound = (id: string) => {
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
-    const now = ctx.currentTime;
-    
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, now);
-    masterGain.gain.linearRampToValueAtTime(0.015, now + 0.005);
-    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-    masterGain.connect(ctx.destination);
-
-    if (id === 'ucd-bsc-cs') {
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(440, now);
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(880, now);
-      
-      osc1.connect(masterGain);
-      osc2.connect(masterGain);
-      
-      osc1.start(now);
-      osc1.stop(now + 0.5);
-      osc2.start(now);
-      osc2.stop(now + 0.5);
-    } else if (id === 'ucd-advanced-ai') {
-      const osc = ctx.createOscillator();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(1500, now + 0.2);
-      
-      osc.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.25);
-    } else {
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(523.25, now);
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(783.99, now);
-      
-      osc1.connect(masterGain);
-      osc2.connect(masterGain);
-      
-      osc1.start(now);
-      osc1.stop(now + 0.4);
-      osc2.start(now);
-      osc2.stop(now + 0.4);
-    }
-  } catch (error) {
-    // Gracefully handle browser restrictions
-  }
-};
-
-import React, { useRef, useState } from 'react';
-
-function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
+const CredentialCard: React.FC<{
+  cred: Credential;
+  audioEnabled: boolean;
+}> = ({ cred, audioEnabled }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || isReduced) return;
@@ -148,17 +98,12 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       if (!cardRef.current) return;
-      const rotX = -((y - rect.height / 2) / rect.height) * 12;
-      const rotY = ((x - rect.width / 2) / rect.width) * 12;
-      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
+      const rotX = -((y - rect.height / 2) / rect.height) * 5;
+      const rotY = ((x - rect.width / 2) / rect.width) * 5;
+      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
       cardRef.current.style.setProperty('--spotlight-x', `${x}px`);
       cardRef.current.style.setProperty('--spotlight-y', `${y}px`);
     });
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    playCredentialSound(cred.id);
   };
 
   const handleMouseLeave = () => {
@@ -169,76 +114,77 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
     }
   };
 
-  const resolvedAccentColor = cred.id.startsWith('ucd--bsc') ? VERIFIED_GREEN : ACCENT;
+  const spotlightColor =
+    cred.accentType === 'mint'
+      ? 'rgba(47, 168, 122, 0.06)'
+      : 'rgba(209, 178, 128, 0.06)';
 
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        playHoverChime(cred.accentType === 'mint' ? 'mint' : 'credential', audioEnabled);
+      }}
       onMouseLeave={handleMouseLeave}
       style={{
-        transition: isHovered 
-          ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-          : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
-        boxShadow: isHovered && !isReduced ? `0 25px 50px rgba(47, 168, 122, 0.08)` : 'none',
-        zIndex: isHovered ? 20 : 1,
+        transition: isHovered
+          ? 'border-color 0.2s ease'
+          : 'transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease',
       }}
-      className="group relative flex flex-col justify-between border border-white/10 bg-[#0d0d0d] p-6 md:p-8 rounded-none overflow-hidden hover:border-accent/30 cursor-pointer"
+      className="group relative flex flex-col justify-between border border-white/10 bg-[#0D0D0F] p-7 sm:p-8 overflow-hidden hover:border-accent/40"
     >
-      {/* Top ambient glow mapping */}
-      <div 
-        className="absolute top-0 right-0 w-48 h-48 rounded-full filter blur-[80px] opacity-10 pointer-events-none transition-all duration-500 group-hover:opacity-20"
-        style={{
-          background: `radial-gradient(circle, ${cred.id.startsWith('ucd-') ? VERIFIED_GREEN : ACCENT} 0%, transparent 70%)`
-        }}
-      />
-
-      {/* Spotlight pointer tracker */}
+      {/* Subtle Pointer Spotlight */}
       {isHovered && !isReduced && (
-        <div 
-          className="absolute inset-0 pointer-events-none"
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
           style={{
-            background: 'radial-gradient(350px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(47, 168, 122, 0.04), transparent 70%)',
-            zIndex: 1,
+            background: `radial-gradient(340px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), ${spotlightColor}, transparent 70%)`,
           }}
         />
       )}
 
-      {/* Certificate Inner Framing */}
-      <div className="flex flex-col flex-1 relative z-10">
-        {/* Main Titles */}
-        <h3 className="text-xl md:text-2xl font-display font-black text-white uppercase tracking-tight leading-none group-hover:text-accent transition-colors">
-          {cred.title}
-        </h3>
-        <div className="flex items-center gap-2 mt-2 text-xs font-mono text-zinc-400 font-medium">
-          {cred.id.startsWith('ucd-') ? <Landmark className="w-3.5 h-3.5 text-zinc-500" /> : <Award className="w-3.5 h-3.5 text-zinc-500" />}
-          <span>{cred.issuer} · {cred.location}</span>
+      <div className="relative z-10 flex flex-col flex-1">
+        {/* Clean Unboxed Issuer & Grade Line */}
+        <div className="flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-zinc-400">
+          <span>
+            {cred.issuer}
+            <span className="mx-1.5 text-zinc-600" aria-hidden="true">·</span>
+            {cred.location}
+          </span>
+          <span
+            className={
+              cred.accentType === 'mint' ? 'text-signal font-medium' : 'text-accent font-medium'
+            }
+          >
+            {cred.grade}
+          </span>
         </div>
 
-        {/* Grade and Timeline Metrics */}
-        {cred.grade && cred.period && (
-          <div className="mt-4 self-start inline-flex flex-wrap items-center gap-2 sm:gap-4 border border-white/5 bg-black/40 py-1.5 px-3 font-mono text-[10px] text-zinc-400 max-w-full">
-            <span className="text-white font-bold">{cred.grade}</span>
-            <span className="hidden sm:inline-block w-1 h-2 bg-white/10" />
-            <span>{cred.period}</span>
-          </div>
-        )}
+        <h3 className="mt-4 font-display text-2xl font-bold text-white tracking-tight leading-tight group-hover:text-accent transition-colors duration-150">
+          {cred.title}
+        </h3>
 
-        {/* Content blurb */}
-        <p className="mt-5 text-sm leading-relaxed text-zinc-400 font-medium flex-1">
+        <p className="mt-4 text-sm leading-relaxed text-zinc-300 flex-1">
           {cred.description}
         </p>
 
-        {/* Core Highlights with sub bullet styling */}
-        <div className="mt-6 border-t border-white/5 pt-5">
-          <div className="text-[9px] font-mono uppercase tracking-widest text-accent font-bold mb-3">
-            // CORE CAPABILITIES EVALUATED
+        {/* Core Capabilities List */}
+        <div className="mt-6 pt-5 border-t border-white/10">
+          <div className="font-mono text-[11px] text-zinc-400 mb-3">
+            Core Disciplines Evaluated
           </div>
-          <ul className="space-y-2">
-            {cred.highlights.map((hlt, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-[13px] text-zinc-350 leading-relaxed">
-                <span className="text-accent font-black shrink-0 mt-[1px]">↳</span>
+          <ul className="space-y-2.5">
+            {cred.highlights.map((hlt) => (
+              <li
+                key={hlt}
+                className="flex items-start gap-2.5 text-[13px] leading-relaxed text-zinc-300"
+              >
+                <span className="text-accent font-mono shrink-0" aria-hidden="true">
+                  ↳
+                </span>
                 <span>{hlt}</span>
               </li>
             ))}
@@ -246,66 +192,59 @@ function CredentialCard({ cred }: { cred: Credential; key?: React.Key }) {
         </div>
       </div>
 
-      {/* Verify Link / Footer with full high-visibility container and hover action triggers */}
-      <div className="mt-8 pt-4 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-        <div className="font-mono text-[11px] text-zinc-500 flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
-          <div>
-            <span>RECORD HASH: </span>
-            <span className="text-white font-bold tracking-wider">{cred.hash}</span>
-          </div>
-
-          {/* Micro Sensory Equalizer Bars */}
-          <div className="flex gap-[1.5px] items-end h-2.5">
-            <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-1 opacity-25 group-hover:animate-equalizer-one" />
-            <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-2 opacity-25 group-hover:animate-equalizer-two" />
-            <div className="w-[1px] bg-emerald-500 transition-all duration-300 h-1.5 opacity-25 group-hover:animate-equalizer-three" />
-          </div>
+      {/* Verification Footer */}
+      <div className="relative z-10 mt-8 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
+        <div className="font-mono text-[11px] text-zinc-400 tabular-nums">
+          <span className="text-zinc-500">Ref: </span>
+          <span className="text-zinc-200">{cred.hash}</span>
+          {cred.period && (
+            <>
+              <span className="mx-1.5 text-zinc-600" aria-hidden="true">·</span>
+              <span>{cred.period}</span>
+            </>
+          )}
         </div>
 
-        {/* Hover trigger verify button */}
         <a
           href={cred.verificationUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="group/btn relative inline-flex items-center justify-between gap-3 bg-[#0a0a0a] overflow-hidden hover:bg-white text-white hover:text-black border border-white/15 hover:border-white px-4 py-2.5 transition-all duration-300"
+          className="group/btn inline-flex items-center gap-2 border border-white/20 bg-[#070708] px-4 py-2 font-mono text-[11px] font-medium text-white transition-colors duration-150 hover:bg-white hover:text-[#070708] hover:border-white whitespace-nowrap shrink-0"
         >
-          <span className="font-mono text-[11px] font-black tracking-widest uppercase flex items-center gap-2 z-10">
-            VERIFY CREDENTIAL
-          </span>
-          <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 z-10" />
-          
-          <div className="absolute inset-0 bg-white/20 translate-y-full hover:translate-y-0 transition-transform duration-300 pointer-events-none" />
+          <span>Verify Credential</span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
         </a>
       </div>
     </div>
   );
 }
 
-export default function CredentialShowcase() {
+export default function CredentialShowcase({ audioEnabled }: CredentialShowcaseProps) {
   return (
-    <section id="experience" className="py-20 border-b border-white/10 bg-transparent relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px]" />
-      
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        
-        {/* Header section with technical styling */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h2 className="text-3xl md:text-5xl font-display font-black text-white tracking-tighter uppercase leading-[0.9]">
-              Verified <span className="font-extralight text-white/40">Expertise</span>
+    <section
+      id="credentials"
+      className="border-b border-white/10 bg-[#070708] py-24 sm:py-28 scroll-mt-16"
+    >
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-12 border-b border-white/10">
+          <div className="max-w-2xl">
+            <p className="font-mono text-xs tracking-[0.14em] text-signal">
+              Academic &amp; AI Foundation
+            </p>
+            <h2 className="mt-3 font-display text-3xl sm:text-5xl font-bold tracking-[-0.03em] text-white text-balance leading-[1.06]">
+              Verified Expertise.
             </h2>
           </div>
-
+          <p className="max-w-md text-sm sm:text-base leading-relaxed text-zinc-400">
+            Real computer science fundamentals paired with Distinction-level AI training from University College Dublin.
+          </p>
         </div>
 
-        {/* 3-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {CREDENTIALS_DATA.map((cred) => (
-            <CredentialCard key={cred.id} cred={cred} />
+            <CredentialCard key={cred.id} cred={cred} audioEnabled={audioEnabled} />
           ))}
         </div>
-
       </div>
     </section>
   );

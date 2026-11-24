@@ -1,237 +1,139 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import { 
-  FileText, 
-  Activity, 
-  MessageSquare, 
-  TrendingUp, 
-  ShieldCheck, 
-  Calculator, 
-  Box, 
-  Terminal 
-} from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { playHoverChime } from '../utils/audio';
 
-interface ProjectItem {
+interface TechnicalPortfolioProps {
+  audioEnabled: boolean;
+}
+
+type CategoryFilter = 'All' | 'AI Systems' | 'Enterprise AI' | 'Fintech & CV' | 'SaaS & WebGL';
+
+interface SystemBuild {
   id: string;
+  index: string;
   title: string;
   tech: string;
   build: string;
   impact: string;
-  icon: any;
-  category: 'Enterprise AI' | 'AI Systems' | 'Fintech & CV' | 'SaaS & WebGL';
-  tags: string[];
-  status: string;
+  category: Exclude<CategoryFilter, 'All'>;
+  stack: string[];
+  stage: string;
 }
 
-const TECHNICAL_PROJECTS: ProjectItem[] = [
+const TECHNICAL_PROJECTS: SystemBuild[] = [
   {
     id: 'energy-grant-navigator',
+    index: '01',
     title: 'SMB Energy Grant Navigator',
-    tech: 'Production-grade RAG architecture.',
-    build: 'Ingests and chunked 14+ complex Irish policy documents to automate SME grant eligibility checks.',
-    impact: 'Replaced manual, high-friction document parsing with a context-aware, low-latency conversational interface for small business owners.',
-    icon: FileText,
+    tech: 'Production RAG Architecture',
+    build:
+      'Ingested and semantically chunked 14+ complex Irish energy policy documents to automate SME grant eligibility checks.',
+    impact:
+      'Replaced manual document parsing with a low-latency, context-grounded conversational interface for Irish small business owners.',
     category: 'AI Systems',
-    tags: ['LlamaIndex', 'RAG Pipelines', 'OpenAI API', 'Semantic Search', 'Irish Policy'],
-    status: 'PRODUCTION-READY'
-  },
-  {
-    id: 'fitness-ecosystem',
-    title: 'AI-Native Fitness Ecosystem',
-    tech: 'Computer Vision (CV) + Agentic Workflows.',
-    build: 'Integrated edge-based body composition analysis with multi-agent orchestration for personalized meal planning and B2B local service provider lead generation.',
-    icon: Activity,
-    category: 'Fintech & CV',
-    tags: ['MediaPipe', 'OpenCV', 'LangChain Agents', 'Nutrition Planning', 'B2B LeadGen'],
-    status: 'ACTIVE DEMO',
-    impact: 'Created an end-to-end wellness platform bridging real-world biometric data with automated digital coaching.'
-  },
-  {
-    id: 'conversational-engines',
-    title: 'B2B Conversational AI Engines',
-    tech: 'Autonomous Agentic Frameworks.',
-    build: 'Turnkey lead-capture, qualification, and automated Dunning/follow-up email sequences built for hyper-local businesses.',
-    impact: 'Quantifiable overhead reduction for SMBs by automating the top-of-funnel sales process and customer re-engagement loops.',
-    icon: MessageSquare,
-    category: 'Enterprise AI',
-    tags: ['Vercel AI SDK', 'Auto-GPT Loops', 'Dunning Sequences', 'Twilio API', 'Resend Email'],
-    status: 'PROTOTYPED'
-  },
-  {
-    id: 'retailedge-terminal',
-    title: 'RetailEdge Terminal',
-    tech: 'Pine Script v5 + Quantitative Analytics.',
-    build: 'Backtested a proprietary mean-reversion engine using Connors RSI(2) confluence signals. Paired with a custom, high-performance HTML/JS trading dashboard featuring a charcoal/teal UI.',
-    impact: 'Surfaced real-time technical signals and sentiment data, optimizing execution speed and strategy validation.',
-    icon: TrendingUp,
-    category: 'Fintech & CV',
-    tags: ['Pine Script v5', 'Connors RSI(2)', 'Tailwind CSS', 'High-Freq Dashboard', 'Real-Time Sync'],
-    status: 'LIVE MODEL'
+    stack: ['LlamaIndex', 'RAG Pipelines', 'Semantic Search', 'Irish Policy'],
+    stage: 'Production-Ready',
   },
   {
     id: 'guardrail-compliance',
+    index: '02',
     title: 'GuardRail: Agentforce Compliance Layer',
-    tech: 'Enterprise AI Governance.',
-    build: 'A Salesforce-native compliance framework that dynamically audits autonomous agents against EU AI Act risk tiers, auto-generating mandatory governance and risk-mitigation docs.',
-    impact: 'Solved a critical enterprise friction point by ensuring frontier AI deployments meet strict regulatory standards out of the box.',
-    icon: ShieldCheck,
+    tech: 'Enterprise AI Governance',
+    build:
+      'Salesforce-native compliance framework that dynamically audits autonomous agents against EU AI Act risk tiers and generates mandatory risk-mitigation documentation.',
+    impact:
+      'Addressed enterprise governance friction by ensuring frontier AI deployments meet European regulatory requirements out of the box.',
     category: 'Enterprise AI',
-    tags: ['Salesforce SDK', 'Agentforce Audit', 'EU AI Act Compliance', 'PDF Generation', 'Audit Logs'],
-    status: 'STABLE CORE'
+    stack: ['Salesforce SDK', 'EU AI Act', 'Audit Logs', 'Automated Reporting'],
+    stage: 'Stable Core',
   },
   {
     id: 'smallprint-os',
+    index: '03',
     title: 'Smallprint: AI OS for Irish SMBs',
-    tech: 'Full-Stack SaaS (Next.js + Supabase).',
-    build: 'Formulated a comprehensive AI back-office operational system featuring native integrations with Irish Revenue and local VAT rules.',
-    impact: 'Consolidated fragmented accounting, tax tracking, and administrative tasks into a unified, intelligent dashboard for small business owners.',
-    icon: Calculator,
+    tech: 'Full-Stack SaaS (Next.js + Supabase)',
+    build:
+      'Comprehensive AI back-office operational system designed around Irish Revenue rules and local VAT mapping.',
+    impact:
+      'Consolidated fragmented accounting, tax tracking, and admin workflows into one unified dashboard for Irish founders.',
     category: 'SaaS & WebGL',
-    tags: ['Next.js 14', 'Supabase DB', 'Irish Revenue API', 'SaaS Accounting', 'VAT Auto-Mapping'],
-    status: 'SOLUTIONS BETA'
+    stack: ['Next.js', 'Supabase', 'Irish Revenue Rules', 'VAT Mapping'],
+    stage: 'Beta Architecture',
+  },
+  {
+    id: 'conversational-engines',
+    index: '04',
+    title: 'B2B Conversational AI Engines',
+    tech: 'Autonomous Agentic Frameworks',
+    build:
+      'Turnkey lead capture, qualification, and automated follow-up email sequences engineered for local service businesses.',
+    impact:
+      'Cut top-of-funnel admin overhead by automating inquiry triage and timely client re-engagement loops.',
+    category: 'Enterprise AI',
+    stack: ['Vercel AI SDK', 'Agent Loops', 'Twilio', 'Resend'],
+    stage: 'Field-Tested',
+  },
+  {
+    id: 'fitness-ecosystem',
+    index: '05',
+    title: 'AI-Native Fitness Ecosystem',
+    tech: 'Computer Vision + Agent Orchestration',
+    build:
+      'Combined edge-based body composition analysis with multi-agent orchestration for personalised meal planning and local coaching lead capture.',
+    impact:
+      'Bridged real-world biometric inputs with automated digital coaching workflows.',
+    category: 'Fintech & CV',
+    stack: ['MediaPipe', 'OpenCV', 'Multi-Agent', 'Biometrics'],
+    stage: 'Active Prototype',
+  },
+  {
+    id: 'retailedge-terminal',
+    index: '06',
+    title: 'RetailEdge Terminal',
+    tech: 'Pine Script v5 + Quantitative Analytics',
+    build:
+      'Backtested a proprietary mean-reversion engine using Connors RSI(2) confluence signals paired with a custom real-time web analytics dashboard.',
+    impact:
+      'Surfaced real-time technical signals and sentiment telemetry to accelerate strategy validation.',
+    category: 'Fintech & CV',
+    stack: ['Pine Script v5', 'Connors RSI(2)', 'Real-Time Dashboard'],
+    stage: 'Live Model',
   },
   {
     id: 'wetrix-3d',
+    index: '07',
     title: 'Wetrix 3D',
-    tech: 'Real-Time 3D Rendering & WebGL.',
-    build: 'Engineered a web-based, interactive 3D environment optimizing spatial state-tracking and fluid visual rendering.',
-    impact: 'Demonstrated deep frontend capability, managing complex client-side states and high-frame-rate rendering without degrading browser performance.',
-    icon: Box,
+    tech: 'Real-Time 3D Rendering & WebGL',
+    build:
+      'Interactive browser-based 3D environment optimizing spatial state-tracking and fluid shader rendering at 60 FPS.',
+    impact:
+      'Demonstrates deep frontend engineering across complex real-time client state and GPU shaders.',
     category: 'SaaS & WebGL',
-    tags: ['WebGL', 'Three.js / R3F', 'GLSL Shaders', 'Spatio-Temporal Tracking', '60 FPS Target'],
-    status: 'LIVE SCENE'
-  }
+    stack: ['WebGL', 'Three.js', 'GLSL Shaders', '60 FPS Engine'],
+    stage: 'Live Scene',
+  },
 ];
 
-// Elegant client-side micro-synth for low-profile tech hover sounds
-const playProjectHoverSound = (index: number) => {
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
-    const now = ctx.currentTime;
-    
-    // Low master volume (very polite, elegant, exuding high craft)
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, now);
-    masterGain.gain.linearRampToValueAtTime(0.008, now + 0.005);
-    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-    masterGain.connect(ctx.destination);
+const CATEGORIES: CategoryFilter[] = [
+  'All',
+  'AI Systems',
+  'Enterprise AI',
+  'Fintech & CV',
+  'SaaS & WebGL',
+];
 
-    if (index === 0) {
-      // "RAG Navigator" -> Dual crisp futuristic databeep (A5 & E6)
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type = 'triangle';
-      osc1.frequency.setValueAtTime(880, now);
-      osc1.frequency.setValueAtTime(1320, now + 0.03);
-      
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(1760, now);
-      osc2.frequency.setValueAtTime(2640, now + 0.03);
-      
-      osc1.connect(masterGain);
-      osc2.connect(masterGain);
-      osc1.start(now);
-      osc1.stop(now + 0.12);
-      osc2.start(now);
-      osc2.stop(now + 0.12);
-    } else if (index === 1) {
-      // "Fitness CV" -> Swooping sensory scanner frequency
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, now);
-      osc.frequency.quadraticRampToValueAtTime(1000, now + 0.12);
-      
-      osc.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.15);
-    } else if (index === 2) {
-      // "Conversational" -> Double low-pass digital bubble chime
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(1100, now);
-      osc.frequency.setValueAtTime(1500, now + 0.025);
-      
-      osc.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.1);
-    } else if (index === 3) {
-      // "RetailEdge" -> Fast mechanical stock ticker speed click
-      const osc = ctx.createOscillator();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(3000, now);
-      osc.frequency.setValueAtTime(4500, now + 0.012);
-      
-      osc.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.06);
-    } else if (index === 4) {
-      // "GuardRail" -> Stable corporate security drone chime
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type = 'triangle';
-      osc1.frequency.setValueAtTime(523.25, now); // C5
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(659.25, now); // E5
-      
-      osc1.connect(masterGain);
-      osc2.connect(masterGain);
-      osc1.start(now);
-      osc1.stop(now + 0.18);
-      osc2.start(now);
-      osc2.stop(now + 0.18);
-    } else if (index === 5) {
-      // "Smallprint" -> Tiny accounting calculator audit ticks
-      const delay = 0.03;
-      for (let j = 0; j < 3; j++) {
-        const tickOsc = ctx.createOscillator();
-        const tickGain = ctx.createGain();
-        tickOsc.type = 'sine';
-        tickOsc.frequency.setValueAtTime(1800 + j * 400, now + j * delay);
-        
-        tickGain.gain.setValueAtTime(0, now + j * delay);
-        tickGain.gain.linearRampToValueAtTime(0.008, now + j * delay + 0.002);
-        tickGain.gain.exponentialRampToValueAtTime(0.0001, now + j * delay + 0.02);
-        
-        tickOsc.connect(tickGain);
-        tickGain.connect(ctx.destination);
-        
-        tickOsc.start(now + j * delay);
-        tickOsc.stop(now + j * delay + 0.025);
-      }
-    } else {
-      // "Wetrix 3D" -> Spatio-temporal WebGL stereo harmonic glide
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(380, now);
-      osc.frequency.exponentialRampToValueAtTime(1400, now + 0.15);
-      
-      osc.connect(masterGain);
-      osc.start(now);
-      osc.stop(now + 0.2);
-    }
-  } catch (error) {
-    // Gracefully handle browser autoplay blocks
-  }
-};
-
-interface ProjectCardProps {
-  project: ProjectItem;
-  index: number;
-  key?: React.Key;
-}
-
-function ProjectCard({ project, index }: ProjectCardProps) {
-  const IconComponent = project.icon;
+const ArchiveCard: React.FC<{
+  project: SystemBuild;
+  isExpanded: boolean;
+  onToggle: () => void;
+  audioEnabled: boolean;
+}> = ({ project, isExpanded, onToggle, audioEnabled }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current || isReduced) return;
+    if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -239,161 +141,165 @@ function ProjectCard({ project, index }: ProjectCardProps) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       if (!cardRef.current) return;
-      const rotX = -((y - rect.height / 2) / rect.height) * 12;
-      const rotY = ((x - rect.width / 2) / rect.width) * 12;
-      cardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
       cardRef.current.style.setProperty('--spotlight-x', `${x}px`);
       cardRef.current.style.setProperty('--spotlight-y', `${y}px`);
     });
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    playProjectHoverSound(index);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (cardRef.current) {
-      cardRef.current.style.transform = 'none';
-    }
   };
 
   return (
     <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        transition: isHovered 
-          ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-          : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
-        boxShadow: isHovered && !isReduced ? '0 25px 50px rgba(209, 178, 128, 0.1)' : 'none',
-        zIndex: isHovered ? 20 : 1,
+      onMouseEnter={() => {
+        setIsHovered(true);
+        playHoverChime('soft', audioEnabled);
       }}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-xl border border-white/5 bg-[#080808]/90 p-6 transition-colors duration-300 hover:border-accent/30 cursor-pointer"
+      onMouseLeave={() => {
+        setIsHovered(false);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      }}
+      className={`relative border bg-[#0D0D0F] transition-colors duration-150 ${
+        isExpanded ? 'border-accent/45 bg-[#111115]' : 'border-white/10 hover:border-white/25'
+      }`}
     >
-      {/* Dynamic Cursor-following Light Spotlight */}
-      {isHovered && !isReduced && (
-        <div 
-          className="absolute inset-0 pointer-events-none"
+      {isHovered && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
           style={{
-            background: 'radial-gradient(350px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(209, 178, 128, 0.08), transparent 70%)',
-            zIndex: 1,
+            background:
+              'radial-gradient(320px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(209, 178, 128, 0.06), transparent 70%)',
           }}
         />
       )}
 
-      {/* Grid Pattern Mesh overlay illuminated on hover */}
-      <div 
-        className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity duration-300"
-      />
-
-      <div>
-        {/* Top Metadata removed */}
-
-
-        {/* Title Block with Interactive Icon Accent */}
-        <div className="flex items-start gap-4 mb-5 relative z-10">
-          <span className="mt-1 p-2 bg-zinc-900 border border-zinc-800 rounded-md text-accent group-hover:bg-accent group-hover:text-black transition-all duration-300 shrink-0 transform group-hover:rotate-3 group-hover:scale-105 shadow-inner">
-            <IconComponent className="w-4 h-4" />
-          </span>
-          <div>
-            <h3 className="text-base font-display font-black text-white tracking-tight group-hover:text-accent transition-colors duration-200 leading-snug uppercase flex items-center gap-1">
-              <span>{project.title}</span>
-              {isHovered && (
-                <span className="w-2.5 h-4 bg-accent animate-[pulse_0.4s_infinite] inline-block ml-0.5 shrink-0" />
-              )}
+      <button
+        type="button"
+        onClick={() => {
+          playHoverChime('toggle', audioEnabled);
+          onToggle();
+        }}
+        aria-expanded={isExpanded}
+        className="relative z-10 w-full p-6 sm:p-7 text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-accent"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] text-zinc-400">
+              <span className="text-accent tabular-nums">{project.index}</span>
+              <span aria-hidden="true">·</span>
+              <span>{project.category}</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-signal">{project.stage}</span>
+            </div>
+            <h3 className="mt-2.5 font-display text-xl font-bold text-white tracking-tight">
+              {project.title}
             </h3>
-          </div>
-        </div>
-
-        {/* Technical metrics/arguments */}
-        <div className="space-y-4 relative z-10">
-          {/* Tech Segment */}
-          <div className="border-l-2 border-accent pl-3 transition-transform duration-300 group-hover:translate-x-1">
-            <div className="text-[9px] font-mono tracking-wider text-zinc-500 uppercase font-black leading-none mb-1">
-              The Tech
-            </div>
-            <p className="text-xs text-white leading-relaxed font-bold">
-              {project.tech}
-            </p>
+            <p className="mt-1 text-xs font-mono text-zinc-400">{project.tech}</p>
           </div>
 
-          {/* Build Segment */}
-          <div className="border-l-2 border-zinc-800 pl-3 group-hover:border-zinc-700 transition-colors duration-300">
-            <div className="text-[9px] font-mono tracking-wider text-zinc-500 uppercase font-black leading-none mb-1">
-              The Build
+          <span
+            className={`mt-1 flex h-8 w-8 shrink-0 items-center justify-center border transition-colors ${
+              isExpanded
+                ? 'border-accent/50 text-accent bg-accent/10'
+                : 'border-white/10 text-zinc-400'
+            }`}
+          >
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </span>
+        </div>
+
+        <p className="mt-4 text-sm leading-relaxed text-zinc-300 line-clamp-2">
+          {project.build}
+        </p>
+
+        {isExpanded && (
+          <div className="mt-5 pt-5 border-t border-white/10 space-y-4">
+            <div>
+              <div className="font-mono text-[11px] text-signal mb-1">Business Impact</div>
+              <p className="text-sm leading-relaxed text-zinc-200">{project.impact}</p>
             </div>
-            <p className="text-xs text-zinc-300 leading-relaxed font-semibold">
-              {project.build}
-            </p>
+            <div className="font-mono text-[11px] text-zinc-400">
+              {project.stack.join(' · ')}
+            </div>
           </div>
-
-          {/* Impact Segment */}
-          {project.impact && (
-            <div className="border-l-2 border-zinc-900 pl-3 group-hover:border-zinc-800 transition-colors duration-300">
-              <div className="text-[9px] font-mono tracking-wider text-zinc-500 uppercase font-black leading-none mb-1">
-                The Impact
-              </div>
-              <p className="text-xs text-zinc-400 leading-relaxed font-sans font-medium">
-                {project.impact}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Interactive Tag Array & Equalizer */}
-      <div className="mt-6 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 relative z-10">
-        <div className="flex flex-wrap gap-1.5">
-          {project.tags.map((tag) => (
-            <span 
-              key={tag} 
-              className="px-1.5 py-0.5 bg-black/40 border border-white/5 font-mono text-[8px] text-zinc-500 group-hover:text-accent group-hover:border-accent/10 rounded-sm transition-all duration-200"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Sensory Equalizer Waves */}
-        <div className="flex gap-[2px] items-end h-3 shrink-0">
-          <div className={`w-[1.5px] bg-[#D1B280] transition-all duration-300 ${isHovered && !isReduced ? 'animate-equalizer-one' : 'h-1 opacity-25'}`} />
-          <div className={`w-[1.5px] bg-[#D1B280] transition-all duration-300 ${isHovered && !isReduced ? 'animate-equalizer-two' : 'h-2 opacity-25'}`} />
-          <div className={`w-[1.5px] bg-[#D1B280] transition-all duration-300 ${isHovered && !isReduced ? 'animate-equalizer-three' : 'h-1.5 opacity-25'}`} />
-        </div>
-      </div>
+        )}
+      </button>
     </div>
   );
 }
 
-export default function TechnicalPortfolio() {
+export default function TechnicalPortfolio({ audioEnabled }: TechnicalPortfolioProps) {
+  const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>('All');
+  const [expandedId, setExpandedId] = useState<string | null>('energy-grant-navigator');
+
+  const filtered =
+    selectedCategory === 'All'
+      ? TECHNICAL_PROJECTS
+      : TECHNICAL_PROJECTS.filter((p) => p.category === selectedCategory);
+
   return (
-    <section id="architecture" className="border-b border-white/10 bg-transparent px-6 py-24 scroll-mt-16">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-14 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <section
+      id="systems"
+      className="border-b border-white/10 bg-[#070708] py-24 sm:py-28 scroll-mt-16"
+    >
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Header + Interactive Category Filter Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-10 border-b border-white/10">
           <div className="max-w-2xl">
-            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.35em] text-accent">
-              Core Systems &amp; Engineering
+            <p className="font-mono text-xs tracking-[0.14em] text-accent">
+              Applied AI &amp; Engineering Depth
             </p>
-            <h2 className="font-display text-4xl font-black tracking-tight text-white sm:text-5xl uppercase">
-              Technical Project Portfolio
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-white text-balance leading-[1.08]">
+              Under the hood: systems &amp; R&amp;D archive.
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-zinc-400">
-              A curated directory detailing foundational system infrastructure, WebGL state-tracking mechanics, complex quantitative logic models, and deep local integrations.
+            <p className="mt-3 text-sm sm:text-base text-zinc-400 leading-relaxed">
+              Beyond client websites, I engineer RAG pipelines, EU AI Act compliance layers, and full-stack SaaS tools—bringing serious software depth to every small business build.
             </p>
           </div>
-          
 
+          {/* Functional Segmented Filter Controls */}
+          <div
+            role="tablist"
+            aria-label="Filter technical systems by discipline"
+            className="flex flex-wrap border border-white/10 bg-[#0D0D0F] p-1 gap-1 self-start lg:self-end"
+          >
+            {CATEGORIES.map((category) => {
+              const active = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    playHoverChime('toggle', audioEnabled);
+                    setSelectedCategory(category);
+                  }}
+                  className={`px-3.5 py-2 text-xs font-mono transition-colors duration-150 cursor-pointer whitespace-nowrap shrink-0 ${
+                    active
+                      ? 'bg-accent text-[#070708] font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
+                  }`}
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Technical Directory Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {TECHNICAL_PROJECTS.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+        {/* Clean Uniform Grid of Expandable Engineering Cards */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtered.map((project) => (
+            <ArchiveCard
+              key={project.id}
+              project={project}
+              isExpanded={expandedId === project.id}
+              onToggle={() =>
+                setExpandedId((prev) => (prev === project.id ? null : project.id))
+              }
+              audioEnabled={audioEnabled}
+            />
           ))}
         </div>
       </div>

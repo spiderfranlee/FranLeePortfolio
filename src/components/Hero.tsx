@@ -1,419 +1,202 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowUpRight, Globe, CalendarCheck, MessageSquare, PhoneCall, Check, Linkedin } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { playHoverChime } from '../utils/audio';
 
-const playOfferHoverSound = () => {
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
-    const now = ctx.currentTime;
-    
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0, now);
-    masterGain.gain.linearRampToValueAtTime(0.012, now + 0.005);
-    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
-    masterGain.connect(ctx.destination);
+interface HeroProps {
+  audioEnabled: boolean;
+}
 
-    // Dynamic offer sound: high-value dual chime pitch (C6 & E6 rising to G6)
-    const osc1 = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(1046.50, now); // C6
-    osc1.frequency.exponentialRampToValueAtTime(1567.98, now + 0.15); // G6
-    
-    osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(1318.51, now); // E6
-    osc2.frequency.exponentialRampToValueAtTime(1959.98, now + 0.15); // G6 range
-    
-    osc1.connect(masterGain);
-    osc2.connect(masterGain);
-    
-    osc1.start(now);
-    osc1.stop(now + 0.5);
-    osc2.start(now);
-    osc2.stop(now + 0.5);
-  } catch (error) {
-    // Autoplay restrictions
-  }
-};
-
-/**
- * HERO — SMB consulting / lead-gen cut.
- *
- * This is a SALES page now, not a portfolio. The reader is a busy electrician or
- * plumber, not a hiring manager. So:
- *  - Headline names their problem in their words ("on the tools"), not your stack.
- *  - No "RAG pipelines / agent workflows" jargon — they don't care how it's built.
- *  - Price is on the page. Trades walk when pricing is hidden.
- *  - One dominant CTA (book a call). Everything else is secondary.
- *  - Right panel is the OFFER (what you get + price), not GitHub repos.
- *  - Trust chips replace credentials: local, fast, no lock-in.
- *
- * EDIT THESE: the booking link, phone/email, the price, and the target trades.
- */
-
-const ACCENT = '#D1B280';
-
-const LINKS = {
-  contact: '#contact',
-  tel: 'tel:+353871234567',
-  email: 'mailto:franny.lee@gmail.com',
-};
-
-// Pricing config
-const PRICE = { setup: '€750', monthly: '€99' };
-
-const INCLUDED = [
-  { icon: Globe, title: 'Clean digital systems', blurb: 'Bespoke, high-performing websites and digital hubs engineered for clinics, coaches, and modern service businesses.' },
-  { icon: CalendarCheck, title: 'Integrated booking & automations', blurb: 'Frictionless patient and client scheduling, payment setup, and calendar sync that runs on autopilot.' },
-  { icon: MessageSquare, title: 'AI assistants & smart routing', blurb: 'Qualify inbound inquiries and support clients 24/7 without burning your own time.' },
-  { icon: PhoneCall, title: 'Handoff & full walk-through', blurb: 'Keys in hand, complete walkthrough, and zero lock-in so you stay 100% in control.' },
+const PROOF_METRICS = [
+  {
+    value: '€750 + €99/mo',
+    label: 'Complete Digital Engine',
+    detail: 'Website, booking & 24/7 AI intake',
+  },
+  {
+    value: '7–14 Days',
+    label: 'Kickoff to Live Launch',
+    detail: 'Direct 1-on-1 engineering sprint',
+  },
+  {
+    value: 'UCD Honours + AI',
+    label: 'Verified CS Foundation',
+    detail: 'BSc Computer Science & 2× Distinction',
+  },
+  {
+    value: '100% Ownership',
+    label: 'Zero Agency Lock-In',
+    detail: 'Your domain, code & full walkthrough',
+  },
 ];
 
-const TRUST = ['1-on-1 technical partner', 'Clinics, coaches & small businesses', 'You keep 100% control'];
+export default function Hero({ audioEnabled }: HeroProps) {
+  const [imgState, setImgState] = useState<'remote' | 'local' | 'fallback'>('remote');
 
-export default function Hero() {
-  const offerRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const portraitSrc =
+    imgState === 'remote'
+      ? 'https://media.theresetclann.com/fran%20image.jpg'
+      : '/fran_image.jpg';
 
-  const isReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!offerRef.current || isReduced) return;
-    const rect = offerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      if (!offerRef.current) return;
-      const rotX = -((y - rect.height / 2) / rect.height) * 12;
-      const rotY = ((x - rect.width / 2) / rect.width) * 12;
-      offerRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02, 1.02, 1.02)`;
-      offerRef.current.style.setProperty('--spotlight-x', `${x}px`);
-      offerRef.current.style.setProperty('--spotlight-y', `${y}px`);
-    });
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    playOfferHoverSound();
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (offerRef.current) {
-      offerRef.current.style.transform = 'none';
-    }
+  const handleImageError = () => {
+    setImgState((prev) => (prev === 'remote' ? 'local' : 'fallback'));
   };
 
   return (
     <section
       id="top"
-      className="relative mt-16 sm:mt-20 min-h-[calc(100vh-4rem)] border-b border-white/10 bg-transparent text-primary-300"
+      className="relative pt-24 sm:pt-28 border-b border-white/10 bg-[#070708]"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 right-0 h-[36rem] w-[36rem] rounded-full blur-[120px]"
-        style={{ background: `radial-gradient(circle, ${ACCENT}22, transparent 70%)` }}
-      />
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Main 12-Column Architectural Split */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 lg:items-stretch gap-10 lg:gap-0 border-x border-t border-white/10 bg-[#0D0D0F]">
+          {/* LEFT: Value Proposition & Primary Action */}
+          <div className="lg:col-span-7 flex flex-col justify-between p-8 sm:p-12 lg:p-14 lg:border-r border-white/10">
+            <div>
+              <p className="text-xs font-mono tracking-[0.16em] text-zinc-400">
+                Dublin, Ireland
+                <span className="mx-2.5 text-zinc-600" aria-hidden="true">·</span>
+                <span className="text-accent">1-on-1 Technical Partner</span>
+              </p>
 
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-12 lg:gap-16 lg:py-0">
-        {/* LEFT: their problem, the offer in one line, the CTA */}
-        <div className="lg:col-span-7">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6 font-mono text-[11px] uppercase tracking-[0.35em] text-accent font-bold"
-          >
-            1-on-1 Technical Partnership · Dublin
-          </motion.p>
+              <h1 className="mt-6 font-display text-[clamp(2.5rem,4.6vw,4.35rem)] font-bold leading-[1.02] tracking-[-0.03em] text-white text-balance">
+                You master the craft.{' '}
+                <span className="text-accent">I build the engine.</span>
+              </h1>
 
-          <h1 className="font-display text-balance text-5xl font-black leading-[1.0] md:leading-[0.95] tracking-tight text-white sm:text-6xl xl:text-7xl">
-            <span className="block overflow-hidden relative" style={{ paddingBottom: '0.12em', marginBottom: '-0.12em' }}>
-              <span 
-                className="block animate-slide-up"
-                style={{
-                  animationDelay: '0ms',
-                }}
-              >
-                You master the craft.
-              </span>
-            </span>
-            <span className="block overflow-hidden relative text-accent" style={{ paddingBottom: '0.18em', marginBottom: '-0.18em' }}>
-              <span 
-                className="block animate-slide-up"
-                style={{
-                  animationDelay: '80ms',
-                }}
-              >
-                I’ll build the engine.
-              </span>
-            </span>
-          </h1>
+              <p className="mt-6 max-w-[56ch] text-base sm:text-[17px] leading-[1.65] text-zinc-300">
+                I partner directly with private clinic owners, coaches, and boutique founders to replace clunky DIY websites, manual scheduling, and disconnected tools with fast, self-running digital systems.
+              </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.12 }}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-zinc-300 font-medium"
-          >
-            I partner 1-on-1 with ambitious founders, clinic owners, coaches, and small businesses to turn messy tech, clunky tools, and broken workflows into clean, high-performing digital systems.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
-            <a
-              href="#contact"
-              onClick={() => {
-                setTimeout(() => {
-                  const el = document.getElementById('form-name');
-                  if (el) el.focus();
-                }, 300);
-              }}
-              className="group inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-base font-bold text-black transition-transform active:scale-95 cursor-pointer shadow-[0_4px_25px_rgba(209,178,128,0.25)] hover:shadow-[0_8px_35px_rgba(209,178,128,0.4)]"
-            >
-              Let's Talk About Your Project
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
-          </motion.div>
-
-          {/* Trust row — what a tradesperson actually wants reassured */}
-          <motion.ul
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.28 }}
-            className="mt-8 flex flex-wrap gap-x-6 gap-y-3"
-          >
-            {TRUST.map((t) => (
-              <li key={t} className="flex items-center gap-2 text-sm text-primary-400 font-semibold">
-                <Check className="h-4 w-4 text-accent" />
-                {t}
-              </li>
-            ))}
-          </motion.ul>
-
-          {/* Meet Your Partner Biography Block */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-            className="mt-12 flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-white/5 bg-[#080808] p-5 sm:p-6 relative overflow-hidden group w-full max-w-full"
-          >
-            {/* Ambient indicator */}
-            <div className="absolute top-0 left-0 w-2 h-full bg-accent" />
-
-            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-zinc-800 bg-[#121212] flex items-center justify-center">
-              <img
-                src="https://media.theresetclann.com/fran%20image.jpg"
-                alt="Fran Lee"
-                decoding="async"
-                onError={(e) => {
-                  // Fallback to local copy or initials
-                  const imgEl = e.currentTarget;
-                  if (!imgEl.src.includes('fran_image.jpg')) {
-                    imgEl.src = '/fran_image.jpg';
-                  } else {
-                    imgEl.style.display = 'none';
-                    const fallback = imgEl.parentElement?.querySelector('.avatar-fallback') as HTMLElement;
-                    if (fallback) fallback.style.display = 'flex';
-                  }
-                }}
-                className="h-full w-full object-cover object-top"
-              />
-              <div 
-                className="avatar-fallback hidden absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-tr from-[#D1B280]/20 to-[#0A0A0A] text-accent font-display text-xl font-black"
-                style={{ display: 'none' }}
-              >
-                FL
-              </div>
-            </div>
-            
-            <div className="text-center sm:text-left flex-1 min-w-0">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <h4 className="font-display text-lg font-black text-white uppercase tracking-tight">Fran Lee</h4>
-                  <span className="rounded-sm bg-accent/10 border border-accent/20 px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-accent font-bold shrink-0">
-                    Technical Corner Man
-                  </span>
-                </div>
+              {/* Single Dominant Primary CTA + Quiet Secondary Anchor */}
+              <div className="mt-10 flex flex-wrap items-center gap-6">
                 <a
-                  href="https://www.linkedin.com/in/franleeprofile/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-mono text-zinc-300 hover:border-accent/50 hover:text-accent hover:bg-accent/10 transition-all self-center sm:self-auto shrink-0"
+                  href="#configurator"
+                  onMouseEnter={() => playHoverChime('gold', audioEnabled)}
+                  className="group inline-flex items-center gap-2.5 bg-accent px-7 py-3.5 text-sm font-semibold text-[#070708] transition-all duration-150 hover:bg-[#DFC496] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent whitespace-nowrap shrink-0"
                 >
-                  <Linkedin className="h-3 w-3 text-accent" />
-                  <span>LinkedIn</span>
-                  <ArrowUpRight className="h-3 w-3" />
+                  <span>Configure Your Engine</span>
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </a>
+
+                <a
+                  href="#work"
+                  className="group inline-flex items-center gap-2 text-sm font-medium text-zinc-300 transition-colors duration-150 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent whitespace-nowrap shrink-0"
+                >
+                  <span>Explore Live Builds</span>
+                  <ArrowDownRight className="h-4 w-4 text-accent transition-transform duration-150 group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
                 </a>
               </div>
-              <p className="mt-2 text-xs text-zinc-400 leading-relaxed font-sans font-medium break-words">
-                Technical partner for clinic owners, coaches, and small business founders. BSc in Computer Science (UCD) with honors and AI distinction. Whether you’re on the clinic floor, coaching clients, or scaling your service, I handle the build, integrations, and digital heavy lifting so you can stay in your zone of genius.
-              </p>
             </div>
-          </motion.div>
+
+            {/* Quiet Partner Credibility Footer inside Left Column */}
+            <div className="mt-12 pt-7 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-zinc-400">
+              <div className="leading-relaxed">
+                <span className="text-zinc-200 font-medium">Direct engineering, zero agency handoffs.</span>{' '}
+                Built for clinics, coaches, and service founders who want clarity and speed.
+              </div>
+              <a
+                href="https://www.linkedin.com/in/franleeprofile/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 font-mono text-zinc-300 hover:text-accent transition-colors whitespace-nowrap shrink-0"
+              >
+                <span>LinkedIn</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* RIGHT: Editorial Portrait Frame (Natural 4:5 Aspect with Faded Obsidian Side Borders) */}
+          <div
+            onMouseEnter={() => playHoverChime('soft', audioEnabled)}
+            className="lg:col-span-5 flex flex-col justify-between bg-[#09090B] border-t lg:border-t-0 border-white/10"
+          >
+            {/* Portrait Stage */}
+            <div className="relative flex-1 min-h-[360px] sm:min-h-[420px] lg:min-h-0 flex items-center justify-center overflow-hidden bg-[#08080A]">
+              {imgState !== 'fallback' ? (
+                <>
+                  {/* Ambient soft dark backdrop so edges melt seamlessly */}
+                  <img
+                    src={portraitSrc}
+                    alt=""
+                    aria-hidden="true"
+                    referrerPolicy="no-referrer"
+                    className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 blur-2xl scale-110"
+                  />
+
+                  {/* Natural 4:5 portrait keeping full face 100% visible */}
+                  <div className="relative z-10 h-full w-full max-w-[320px] sm:max-w-[350px] aspect-[4/5] mx-auto overflow-hidden">
+                    <img
+                      src={portraitSrc}
+                      alt="Fran Lee — Technical Systems Partner in Dublin"
+                      onError={handleImageError}
+                      loading="eager"
+                      fetchPriority="high"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
+
+                  {/* Faded obsidian side and bottom scrims for seamless architectural framing */}
+                  <div className="pointer-events-none absolute inset-y-0 left-0 w-24 sm:w-28 bg-gradient-to-r from-[#08080A] via-[#08080A]/85 to-transparent z-20" />
+                  <div className="pointer-events-none absolute inset-y-0 right-0 w-24 sm:w-28 bg-gradient-to-l from-[#08080A] via-[#08080A]/85 to-transparent z-20" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-[#08080A]/75 to-transparent z-20" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#08080A] via-[#08080A]/75 to-transparent z-20" />
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-12 text-center">
+                  <span className="font-display text-5xl font-bold tracking-tight text-accent">
+                    FL
+                  </span>
+                  <span className="mt-2 font-mono text-xs text-zinc-500">
+                    Fran Lee · Dublin
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Clean Unboxed Portrait Caption Bar */}
+            <div className="border-t border-white/10 px-6 sm:px-8 py-5 bg-[#0D0D0F] flex items-center justify-between gap-4">
+              <div>
+                <div className="font-display text-base font-bold text-white tracking-tight">
+                  Fran Lee
+                </div>
+                <div className="mt-0.5 text-xs text-zinc-400">
+                  Technical Corner Man · Build &amp; Operations
+                </div>
+              </div>
+              <div className="text-right font-mono text-[11px] text-signal tabular-nums whitespace-nowrap shrink-0">
+                UCD BSc CS
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT: Fran's photo card + The Engine Package box pushed down */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 0.2 }}
-          className="lg:col-span-5 w-full max-w-full space-y-4"
-        >
-          {/* Fran Lee Showcase Card - Symmetrically matching the borders of The Engine Package box below */}
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/98 via-[#0d0d0d]/96 to-[#090909]/98 backdrop-blur-2xl hover:border-accent/40 transition-all duration-300 w-full max-w-full shadow-2xl">
-            {/* Header bar matching the Engine Package structure */}
-            <div className="border-b border-white/10 px-5 sm:px-6 py-3.5 flex flex-wrap justify-between items-center gap-2 bg-white/[0.02]">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#2FA87A] animate-pulse" />
-                <span className="font-mono text-[11px] uppercase tracking-widest text-primary-500 font-bold">
-                  Technical Partner
-                </span>
+        {/* Full-Width 4-Column Architectural Proof Strip Below the Split */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-white/10 bg-[#0A0A0C] divide-y sm:divide-y-0 sm:divide-x divide-white/10">
+          {PROOF_METRICS.map((metric) => (
+            <div
+              key={metric.label}
+              onMouseEnter={() => playHoverChime('soft', audioEnabled)}
+              className="p-6 lg:p-7 transition-colors duration-150 hover:bg-[#111114]"
+            >
+              <div className="font-mono text-lg sm:text-xl font-semibold text-white tabular-nums tracking-tight">
+                {metric.value}
               </div>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 shrink-0">
-                1-on-1 Direct
-              </span>
-            </div>
-
-            {/* Faded Gradient Image Stage */}
-            <div className="relative h-64 sm:h-72 lg:h-[280px] w-full overflow-hidden bg-[#0a0a0a] flex items-center justify-center">
-              {/* Ambient blurred backdrop spreading across full width */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <img
-                  src="https://media.theresetclann.com/fran%20image.jpg"
-                  alt=""
-                  onError={(e) => {
-                    const imgEl = e.currentTarget;
-                    if (!imgEl.src.includes('fran_image.jpg')) {
-                      imgEl.src = '/fran_image.jpg';
-                    }
-                  }}
-                  className="h-full w-full object-cover filter blur-3xl opacity-20 scale-125"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+              <div className="mt-1.5 text-sm font-medium text-accent">
+                {metric.label}
               </div>
-
-              {/* Centered portrait image - maintains smaller natural 4:5 aspect ratio so full face is 100% visible */}
-              <div className="relative h-full aspect-[4/5] max-w-[210px] sm:max-w-[230px] mx-auto z-10 flex items-center justify-center overflow-hidden">
-                <img
-                  src="https://media.theresetclann.com/fran%20image.jpg"
-                  alt="Fran Lee · Technical Corner Man"
-                  onError={(e) => {
-                    const imgEl = e.currentTarget;
-                    if (!imgEl.src.includes('fran_image.jpg')) {
-                      imgEl.src = '/fran_image.jpg';
-                    }
-                  }}
-                  className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                />
-                {/* Subtle shirt-only bottom gradient */}
-                <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#0a0a0a]/90 via-[#0a0a0a]/40 to-transparent pointer-events-none" />
-              </div>
-
-              {/* Faded gradient borders on left and right filling out to the card borders */}
-              <div className="absolute inset-y-0 left-0 w-24 sm:w-36 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pointer-events-none z-20" />
-              <div className="absolute inset-y-0 right-0 w-24 sm:w-36 bg-gradient-to-l from-[#0a0a0a] via-[#0a0a0a]/85 to-transparent pointer-events-none z-20" />
-              <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent pointer-events-none z-20" />
-              <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-[#0a0a0a]/60 to-transparent pointer-events-none z-20" />
-
-              {/* Floating detail badge over bottom gradient */}
-              <div className="absolute bottom-2.5 left-4 right-4 flex items-end justify-between gap-2 z-30 pointer-events-none">
-                <div className="flex flex-col gap-0.5">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-black/85 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-mono text-accent w-fit shadow-xl">
-                    <span className="font-bold text-white">Fran Lee</span>
-                    <span className="text-zinc-500">·</span>
-                    <span className="text-zinc-300">Dublin, IE</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-white/95 drop-shadow-md pl-1">
-                    Technical Corner Man
-                  </span>
-                </div>
-                <div className="shrink-0">
-                  <span className="rounded-md bg-black/85 backdrop-blur-md border border-white/15 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-accent font-bold shadow-xl">
-                    Build & Ops
-                  </span>
-                </div>
+              <div className="mt-1 text-xs text-zinc-400 leading-relaxed">
+                {metric.detail}
               </div>
             </div>
-          </div>
-
-          <div
-            ref={offerRef}
-            onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            style={{
-              transition: isHovered 
-                ? 'border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)' 
-                : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease',
-              boxShadow: isHovered && !isReduced ? '0 25px 50px rgba(209, 178, 128, 0.12)' : 'none',
-              zIndex: isHovered ? 20 : 1,
-            }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d0d0d]/95 backdrop-blur-2xl hover:border-accent/40 cursor-pointer w-full max-w-full shadow-2xl transition-all duration-300"
-          >
-            {/* Spotlight overlay using CSS variables */}
-            {isHovered && !isReduced && (
-              <div 
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'radial-gradient(350px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(209, 178, 128, 0.08), transparent 70%)',
-                  zIndex: 2,
-                }}
-              />
-            )}
-            <div className="border-b border-white/10 px-5 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-2 bg-white/[0.02]">
-              <span className="font-mono text-[11px] uppercase tracking-widest text-primary-500 font-bold">
-                The Engine Package
-              </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20 shrink-0">
-                1-on-1 Build
-              </span>
-            </div>
-
-            <ul className="flex flex-col">
-              {INCLUDED.map(({ icon: Icon, title, blurb }) => (
-                <li key={title} className="flex items-start gap-3.5 sm:gap-4 border-b border-white/5 px-5 sm:px-6 py-4">
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                    <Icon className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-white break-words">{title}</div>
-                    <div className="mt-0.5 text-sm leading-snug text-zinc-300 break-words">{blurb}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 sm:px-6 py-5 bg-white/[0.01]">
-              <div>
-                <span className="font-display text-3xl font-black text-white">{PRICE.setup}</span>
-                <span className="ml-2 text-sm text-zinc-400">setup</span>
-              </div>
-              <div className="text-right">
-                <span className="font-display text-2xl font-black text-white">{PRICE.monthly}</span>
-                <span className="ml-1 text-sm text-zinc-400">/mo support</span>
-              </div>
-            </div>
-          </div>
-
-          <p className="mt-3 text-center text-xs text-primary-500">
-            No lock-in. Cancel any time — you keep the site and systems.
-          </p>
-        </motion.div>
+          ))}
+        </div>
       </div>
+
+      {/* Breathing room before next section */}
+      <div className="h-14 sm:h-16" aria-hidden="true" />
     </section>
   );
 }

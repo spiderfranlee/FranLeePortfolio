@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Minus, HelpCircle } from 'lucide-react';
+import { Plus, Minus, ArrowUpRight } from 'lucide-react';
+import { playHoverChime } from '../utils/audio';
+
+interface FAQProps {
+  audioEnabled: boolean;
+}
 
 interface FAQItem {
   id: string;
+  index: string;
   question: string;
   answer: string;
 }
@@ -11,121 +17,155 @@ interface FAQItem {
 const FAQS: FAQItem[] = [
   {
     id: 'setup',
-    question: 'What is included in the €750 Setup package?',
-    answer: 'The setup package includes a custom-designed, SEO-friendly, mobile-optimized professional website tailored to your practice or small business. Additionally, we integrate an automated scheduling calendar, build your custom-trained 24/7 AI Chat Assistant, and configure the automated booking flows.'
+    index: '01',
+    question: 'What is included in the €750 Growth setup?',
+    answer:
+      'The setup covers a custom-designed, fast-loading, mobile-optimised website engineered specifically for your practice or business. It also includes automated calendar scheduling, a custom-trained 24/7 AI intake assistant, and end-to-end booking notification workflows.',
   },
   {
     id: 'monthly',
+    index: '02',
     question: 'What does the €99/month subscription cover?',
-    answer: 'The monthly fee hosts your website on highly secure, lightning-fast servers (Cloud Run CDN). It includes continuous security updates, minor content changes, domain/DNS upkeep, and active monitoring. Most importantly, it fully covers your Gemini AI token usage quotas and live calendar API routing fees.'
+    answer:
+      'It covers fast, secure hosting, continuous security updates, minor content and copy adjustments, domain and DNS upkeep, and active uptime monitoring. Crucially, it also includes your AI token usage quotas and live booking calendar API routing.',
   },
   {
     id: 'hidden-costs',
-    question: 'Are there any hidden costs or API subscriptions?',
-    answer: 'None. We believe in absolute transparency. Your €99 monthly fee covers the essential AI and scheduling integrations without you needing to sign up for external API developer accounts.'
+    index: '03',
+    question: 'Are there any hidden costs or third-party API fees?',
+    answer:
+      'None. Your €99 monthly plan covers the core AI and scheduling infrastructure without requiring you to set up or manage separate developer billing accounts.',
   },
   {
     id: 'customize',
-    question: 'How is the AI trained or customized for my practice?',
-    answer: 'Fran conducts a thorough clinical/business intake interview with you. We collect your booking rules, treatments list, price lists, and clinic policies. All this knowledge is converted into strict system instructions for your chatbot, ensuring it never invents details and always represents your brand accurately.'
+    index: '04',
+    question: 'How is an AI assistant trained for my specific practice?',
+    answer:
+      'We start with a focused intake session covering your services, pricing, booking rules, and clinic or business policies. That verified knowledge is locked into strict system instructions so your assistant represents your brand accurately and never invents details.',
   },
   {
     id: 'notifications',
-    question: 'How do I receive patient bookings and new client alerts?',
-    answer: 'Whenever a patient books an appointment or an inquiry requires your attention, instant notifications are automatically routed to your email or designated phone number with complete intake details, allowing you to follow up immediately without manual admin work.'
+    index: '05',
+    question: 'How do I receive new bookings and client inquiries?',
+    answer:
+      'Whenever a client books a session or submits an inquiry, structured details are routed straight to your email or designated device—ready for immediate follow-up without manual inbox sorting.',
   },
   {
     id: 'contract',
-    question: 'Is there a long-term contract requirement?',
-    answer: 'No. The €99/month service is billed monthly on a cancel-at-any-time schedule. You own your service assets, and we allow seamless buyout transitions if you ever wish to host and maintain the system yourself.'
-  }
+    index: '06',
+    question: 'Is there a long-term lock-in contract?',
+    answer:
+      'No. The €99/month plan is billed month-to-month and can be cancelled at any time. You own your domain and brand assets, and you can transition to a full one-off Buyout whenever you choose.',
+  },
 ];
 
-export default function FAQ() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+export default function FAQ({ audioEnabled }: FAQProps) {
+  const [expandedId, setExpandedId] = useState<string | null>('setup');
 
   const toggle = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
+    playHoverChime('toggle', audioEnabled);
+    setExpandedId((prev) => (prev === id ? null : id));
   };
 
   return (
-    <section id="faq" className="border-b border-white/10 bg-transparent px-6 py-24 scroll-mt-16">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-14 text-center">
-          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.35em] text-accent">
-            FAQ
-          </p>
-          <h2 className="font-display text-3xl font-black tracking-tight text-white sm:text-4xl uppercase">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400">
-            Have questions about the setup, recurring hosting, or the interactive AI assistant? We have answers.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {FAQS.map((faq, i) => {
-            const isExpanded = expandedId === faq.id;
-            return (
-              <motion.div
-                key={faq.id}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                className={`rounded-2xl border transition-all ${
-                  isExpanded 
-                    ? 'border-accent/40 bg-[#0E0E0E] shadow-[0_4px_20px_rgba(209,178,128,0.05)]' 
-                    : 'border-white/5 bg-[#0A0A0A]/65 hover:border-white/10'
-                }`}
+    <section
+      id="faq"
+      className="border-b border-white/10 bg-[#070708] py-24 sm:py-28 scroll-mt-16"
+    >
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+          {/* Left Header Column */}
+          <div className="lg:col-span-4 lg:sticky lg:top-24">
+            <p className="font-mono text-xs tracking-[0.14em] text-accent">
+              Common Questions
+            </p>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-white text-balance leading-[1.08]">
+              Straight answers before we start.
+            </h2>
+            <p className="mt-4 text-sm sm:text-base leading-relaxed text-zinc-400">
+              Everything you need to know about build scope, monthly hosting, ownership, and how automation fits your workflow.
+            </p>
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-xs text-zinc-500">
+                Have a specific setup or integration question?
+              </p>
+              <a
+                href="#contact"
+                onMouseEnter={() => playHoverChime('soft', audioEnabled)}
+                className="group mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-white hover:text-accent transition-colors"
               >
-                <button
-                  id={`faq-btn-${faq.id}`}
-                  onClick={() => toggle(faq.id)}
-                  className="flex w-full items-center justify-between px-6 py-5 text-left text-white focus:outline-none cursor-pointer select-none"
+                <span>Message Fran directly</span>
+                <ArrowUpRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Right Hairline Accordion */}
+          <div className="lg:col-span-8 border-t border-white/10 divide-y divide-white/10">
+            {FAQS.map((faq) => {
+              const isExpanded = expandedId === faq.id;
+              return (
+                <div
+                  key={faq.id}
+                  onMouseEnter={() => playHoverChime('soft', audioEnabled)}
+                  className="transition-colors duration-150"
                 >
-                  <span className="flex items-center gap-3 font-medium text-sm sm:text-base">
-                    <HelpCircle className={`h-4 w-4 shrink-0 transition-colors ${isExpanded ? 'text-accent' : 'text-zinc-500'}`} />
-                    {faq.question}
-                  </span>
-                  <div className={`p-1.5 rounded-lg border transition-colors ${
-                    isExpanded ? 'bg-accent/10 border-accent/35 text-accent' : 'bg-white/5 border-white/5 text-zinc-400'
-                  }`}>
-                    {isExpanded ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  </div>
-                </button>
-
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      className="overflow-hidden"
+                  <button
+                    id={`faq-btn-${faq.id}`}
+                    type="button"
+                    aria-expanded={isExpanded}
+                    aria-controls={`faq-panel-${faq.id}`}
+                    onClick={() => toggle(faq.id)}
+                    className="group flex w-full items-start justify-between gap-6 py-6 text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <div className="flex items-baseline gap-4 sm:gap-6">
+                      <span
+                        className={`font-mono text-xs tabular-nums transition-colors ${
+                          isExpanded ? 'text-accent' : 'text-zinc-500 group-hover:text-zinc-300'
+                        }`}
+                      >
+                        {faq.index}
+                      </span>
+                      <span
+                        className={`font-display text-base sm:text-lg font-semibold leading-snug transition-colors ${
+                          isExpanded ? 'text-white' : 'text-zinc-200 group-hover:text-white'
+                        }`}
+                      >
+                        {faq.question}
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border transition-colors ${
+                        isExpanded
+                          ? 'border-accent/50 bg-accent/10 text-accent'
+                          : 'border-white/10 bg-[#0D0D0F] text-zinc-400 group-hover:border-white/25 group-hover:text-white'
+                      }`}
                     >
-                      <div className="px-6 pb-6 text-xs sm:text-sm leading-relaxed text-zinc-400 font-medium">
-                        <div className="h-px bg-white/5 mb-4" />
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
+                      {isExpanded ? <Minus className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                    </span>
+                  </button>
 
-        <div className="mt-12 text-center">
-          <p className="text-xs text-zinc-500 font-mono">
-            Still have queries? Let our 24/7 Assistant know or{' '}
-            <a 
-              href="#contact" 
-              className="text-accent underline hover:text-white transition-colors"
-            >
-              send Fran a message directly
-            </a>.
-          </p>
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div
+                        id={`faq-panel-${faq.id}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-9 sm:pl-11 pr-10 pb-6 text-sm sm:text-[15px] leading-relaxed text-zinc-400">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
